@@ -42,25 +42,25 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Walk"] = new Point[8]
                 {
+                    new Point() { X = 3, Y = 1 },
                     new Point() { X = 2, Y = 1 },
                     new Point() { X = 3, Y = 1 },
                     new Point() { X = 4, Y = 1 },
                     new Point() { X = 5, Y = 1 },
                     new Point() { X = 6, Y = 1 },
                     new Point() { X = 5, Y = 1 },
-                    new Point() { X = 4, Y = 1 },
-                    new Point() { X = 3, Y = 1 }
+                    new Point() { X = 4, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
+                    new Point() { X = 3, Y = 2 },
                     new Point() { X = 2, Y = 2 },
                     new Point() { X = 3, Y = 2 },
                     new Point() { X = 4, Y = 2 },
                     new Point() { X = 5, Y = 2 },
                     new Point() { X = 6, Y = 2 },
                     new Point() { X = 5, Y = 2 },
-                    new Point() { X = 4, Y = 2 },
-                    new Point() { X = 3, Y = 2 }
+                    new Point() { X = 4, Y = 2 }
                 },
                 ["Jump"] = new Point[8]
                 {
@@ -97,25 +97,25 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Walk"] = new Point[8]
                 {
+                    new Point() { X = 3, Y = 1 },
                     new Point() { X = 2, Y = 1 },
                     new Point() { X = 3, Y = 1 },
                     new Point() { X = 4, Y = 1 },
                     new Point() { X = 5, Y = 1 },
                     new Point() { X = 6, Y = 1 },
                     new Point() { X = 5, Y = 1 },
-                    new Point() { X = 4, Y = 1 },
-                    new Point() { X = 3, Y = 1 }
+                    new Point() { X = 4, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
+                    new Point() { X = 3, Y = 2 },
                     new Point() { X = 2, Y = 2 },
                     new Point() { X = 3, Y = 2 },
                     new Point() { X = 4, Y = 2 },
                     new Point() { X = 5, Y = 2 },
                     new Point() { X = 6, Y = 2 },
                     new Point() { X = 5, Y = 2 },
-                    new Point() { X = 4, Y = 2 },
-                    new Point() { X = 3, Y = 2 }
+                    new Point() { X = 4, Y = 2 }
                 },
                 ["Jump"] = new Point[8]
                 {
@@ -358,6 +358,7 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         };
 
+        // OFFSETS
         public readonly static Dictionary<string, Dictionary<string, Point[]>> PosesNOffsets = new Dictionary<string, Dictionary<string, Point[]>>()
         {
             ["Bsleeve"] = new Dictionary<string, Point[]>
@@ -379,40 +380,40 @@ namespace Starbound_ColorOptions_EasyPicker
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 },
+                    new Point() { X = -2, Y = 1 },
+                    new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 1 },
-                    new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Jump"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 }
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 }
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 2 },
+                    new Point() { X = 0, Y = 1 }
                 }
             },
             ["Fsleeve"] = new Dictionary<string, Point[]>
@@ -431,43 +432,43 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Walk"] = new Point[8]
                 {
-                    new Point() { X = -1, Y = 1 },
                     new Point() { X = 0, Y = 1 },
-                    new Point() { X = -1, Y = 0 },
                     new Point() { X = 0, Y = 2 },
-                    new Point() { X = -1, Y = 1 },
                     new Point() { X = 0, Y = 1 },
-                    new Point() { X = -1, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 2 },
+                    new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Jump"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 }
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 }
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 2 },
+                    new Point() { X = 0, Y = 1 }
                 }
             },
             ["pants"] = new Dictionary<string, Point[]>
@@ -491,38 +492,38 @@ namespace Starbound_ColorOptions_EasyPicker
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 },
-                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 2 },
                     new Point() { X = 0, Y = 1 },
                     new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Jump"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 },
-                    new Point() { X = 0, Y = 3 }
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 },
+                    new Point() { X = 0, Y = -1 }
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 1 },
+                    new Point() { X = 0, Y = 2 },
+                    new Point() { X = 0, Y = 1 }
                 }
             },
             ["chestm"] = new Dictionary<string, Point[]>
@@ -548,18 +549,18 @@ namespace Starbound_ColorOptions_EasyPicker
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 }
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 }
                 },
                 ["Jump"] = new Point[8]
                 {
@@ -574,10 +575,10 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 }
                 }
             },
             ["chestf"] = new Dictionary<string, Point[]>
@@ -603,18 +604,18 @@ namespace Starbound_ColorOptions_EasyPicker
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 }
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 },
-                    new Point() { X = 0, Y = 2 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 }
                 },
                 ["Jump"] = new Point[8]
                 {
@@ -629,10 +630,10 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 },
-                    new Point() { X = 0, Y = 5 }
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 },
+                    new Point() { X = 0, Y = 0 }
                 }
             },
             ["head"] = new Dictionary<string, Point[]>
@@ -658,18 +659,18 @@ namespace Starbound_ColorOptions_EasyPicker
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
                     new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 }
+                    new Point() { X = 0, Y = 1 }
                 },
                 ["Run"] = new Point[8]
                 {
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 }
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 }
                 },
                 ["Jump"] = new Point[8]
                 {
@@ -684,12 +685,13 @@ namespace Starbound_ColorOptions_EasyPicker
                 },
                 ["Swim"] = new Point[4]
                 {
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 },
-                    new Point() { X = 0, Y = 0 }
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 },
+                    new Point() { X = 1, Y = 0 }
                 }
             }
         };
+
     }
 }

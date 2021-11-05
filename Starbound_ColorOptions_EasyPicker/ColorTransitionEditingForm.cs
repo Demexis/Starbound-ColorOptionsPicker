@@ -43,81 +43,6 @@ namespace Starbound_ColorOptions_EasyPicker
             return atLeastOneRemoved;
         }
 
-        public void SetListViewItems(params ListViewItem[] items)
-        {
-            _items.Clear();
-            _items.AddRange(items);
-        }
-
-        private void ConvertHSVToRGB()
-        {
-            Color c = ColorProcessing.GetColorFromHue(h);
-
-            r = c.R;
-            g = c.G;
-            b = c.B;
-
-            Console.WriteLine($"Hue: {r} {g} {b}");
-
-            // Saturation
-            r += (int)Math.Floor((255 - r) * (((float)100 - s) / 100));
-            g += (int)Math.Floor((255 - g) * (((float)100 - s) / 100));
-            b += (int)Math.Floor((255 - b) * (((float)100 - s) / 100));
-
-            Console.WriteLine($"Saturation: {r} {g} {b}");
-
-            // Value
-            r = (int)Math.Floor(r * (float)v / 100);
-            g = (int)Math.Floor(g * (float)v / 100);
-            b = (int)Math.Floor(b * (float)v / 100);
-
-            Console.WriteLine($"Value: {r} {g} {b}");
-        }
-
-        private Tuple<int, int, int> RGBtoHSV(double r, double g, double b)
-        {
-            // R, G, B values are divided by 255
-            // to change the range from 0..255 to 0..1
-            r = r / 255.0;
-            g = g / 255.0;
-            b = b / 255.0;
-
-            // h, s, v = hue, saturation, value
-            double cmax = Math.Max(r, Math.Max(g, b)); // maximum of r, g, b
-            double cmin = Math.Min(r, Math.Min(g, b)); // minimum of r, g, b
-            double diff = cmax - cmin; // diff of cmax and cmin.
-            double hue = -1, saturation = -1;
-
-            // if cmax and cmax are equal then h = 0
-            if (cmax == cmin)
-                hue = 0;
-
-            // if cmax equal r then compute h
-            else if (cmax == r)
-                hue = (60 * ((g - b) / diff) + 360) % 360;
-
-            // if cmax equal g then compute h
-            else if (cmax == g)
-                hue = (60 * ((b - r) / diff) + 120) % 360;
-
-            // if cmax equal b then compute h
-            else if (cmax == b)
-                hue = (60 * ((r - g) / diff) + 240) % 360;
-
-            // if cmax equal zero
-            if (cmax == 0)
-                saturation = 0;
-            else
-                saturation = (diff / cmax) * 100;
-
-            // compute v
-            double value = cmax * 100;
-            //Console.WriteLine("(" + h + " " + s + " " + v + ")");
-
-            return Tuple.Create((int)(hue), (int)(saturation), (int)(value));
-        }
-
-
         private void trackBar_Hue_Scroll(object sender, EventArgs e)
         {
             h = trackBar_Hue.Value;
@@ -173,7 +98,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void OnRGBTrackBarChanged()
         {
-            Tuple<int, int, int> hsv = RGBtoHSV(r, g, b);
+            Tuple<int, int, int> hsv = ColorProcessing.RGBtoHSV(r, g, b);
 
             h = hsv.Item1;
             s = hsv.Item2;
@@ -184,7 +109,10 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void OnHSVTrackBarChanged()
         {
-            ConvertHSVToRGB();
+            Tuple<int, int, int> rgb = ColorProcessing.HSVToRGB(h, s, v);
+            r = rgb.Item1;
+            g = rgb.Item2;
+            b = rgb.Item3;
 
             OnTrackBarValueChange();
         }
@@ -306,7 +234,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
             this.pictureBox_Edited.BackColor = c;
 
-            foreach(ListViewItem item in _items)
+            foreach (ListViewItem item in _items)
             {
                 item.SubItems[3].BackColor = c;
                 item.SubItems[4].Text = ColorProcessing.HexConverter(c);
@@ -329,24 +257,40 @@ namespace Starbound_ColorOptions_EasyPicker
             }
             _originalColors = colors.ToArray();
 
-            Color c = this._items[0].SubItems[3].BackColor;
+            //Color c = this._items[0].SubItems[3].BackColor;
 
-            this.pictureBox_Original.BackColor = c;
+            Bitmap bitmap = new Bitmap(pictureBox_Original.Width, pictureBox_Original.Height);
 
-            r = c.R;
-            g = c.G;
-            b = c.B;
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                for (int i = 0; i < colors.Count; i++)
+                {
+                    Color customColor = Color.FromArgb(colors[i].R, colors[i].G, colors[i].B);
+                    SolidBrush shadowBrush = new SolidBrush(customColor);
+                    g.FillRectangle(shadowBrush, new Rectangle(0, (pictureBox_Original.Height / colors.Count) * i, pictureBox_Original.Width, (pictureBox_Original.Height / colors.Count)));
+                }
+            }
+
+
+            this.pictureBox_Original.Image = bitmap;
+
+            r = colors[0].R;
+            g = colors[0].G;
+            b = colors[0].B;
 
             OnRGBTrackBarChanged();
-            DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(c), _selectPointCircleRadius);
+            DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(colors[0]), _selectPointCircleRadius);
         }
 
         private void pictureBox_ColorCircle_Click(object sender, EventArgs e)
         {
             Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
 
-            OnSelectPointChange(mousePosRelativeToControl);
-            DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
+            if (MissingMath.IsInsideCircle(mousePosRelativeToControl.X, mousePosRelativeToControl.Y, ((Control)sender).Width, ((Control)sender).Height))
+            {
+                OnSelectPointChange(mousePosRelativeToControl);
+                DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
+            }
         }
 
         private void pictureBox1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -355,8 +299,11 @@ namespace Starbound_ColorOptions_EasyPicker
             {
                 Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
 
-                OnSelectPointChange(mousePosRelativeToControl);
-                DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
+                if (MissingMath.IsInsideCircle(mousePosRelativeToControl.X, mousePosRelativeToControl.Y, ((Control)sender).Width, ((Control)sender).Height))
+                {
+                    OnSelectPointChange(mousePosRelativeToControl);
+                    DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
+                }
             }
         }
 
@@ -364,7 +311,7 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             Color c = GetColorFromCirclePoint(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
 
-            Tuple<int, int, int> hsv = RGBtoHSV(c.R, c.G, c.B);
+            Tuple<int, int, int> hsv = ColorProcessing.RGBtoHSV(c.R, c.G, c.B);
 
             h = hsv.Item1;
             s = hsv.Item2;
@@ -448,7 +395,9 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void pictureBox_Original_Click(object sender, EventArgs e)
         {
-            Color c = pictureBox_Original.BackColor;
+            Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
+
+            Color c = ((Bitmap)pictureBox_Original.Image).GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
 
             r = c.R;
             g = c.G;
@@ -495,12 +444,11 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private Color GetColorFromCirclePoint(int x, int y)
         {
-            float radius = pictureBox_ColorCircle.Height / 2;
-
-            Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
-
-            if (Math.Pow(x - center.X, 2) + Math.Pow(y - center.Y, 2) <= Math.Pow(radius, 2))
+            if(MissingMath.IsInsideCircle(x, y, pictureBox_ColorCircle.Width, pictureBox_ColorCircle.Height))
             {
+                float radius = pictureBox_ColorCircle.Width / 2f;
+                Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
+
                 double radians = Math.Atan2(y - center.Y, x - center.X);
 
                 int hue = (int)((radians) / (2 * Math.PI) * 360);
@@ -527,8 +475,6 @@ namespace Starbound_ColorOptions_EasyPicker
         private Point GetPointOnCircleFromColor(Color c)
         {
             Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
-
-            Tuple<int, int, int> hsv = RGBtoHSV(c.R, c.G, c.B);
 
             double radius = s / 100f * pictureBox_ColorCircle.Width / 2f;
 

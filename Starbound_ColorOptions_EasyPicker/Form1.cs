@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,20 +21,8 @@ namespace Starbound_ColorOptions_EasyPicker
         private bool _dontDraw;
         private bool _remindToSaveFlag = false;
 
-        private Dictionary<string, Bitmap> _originalSpriteBitmaps = new Dictionary<string, Bitmap>()
-        {
-            ["Bsleeve"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["back"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["pants"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["head"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["chestm"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["chestf"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault),
-            ["Fsleeve"] = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault)
-        };
-
-        private Dictionary<string, bool> _activeBitmaps = new Dictionary<string, bool>();
-
-        private Dictionary<string, List<ListViewItem>> _colorTransitions;
+        private SpriteSheetHandler _spriteSheetHandler = new SpriteSheetHandler();
+        private ColorTransitionHandler _colorTransitionHandler = new ColorTransitionHandler();
 
         public MainForm()
         {
@@ -45,16 +34,24 @@ namespace Starbound_ColorOptions_EasyPicker
 
             InitializeRadioButtons();
 
-            InitializeColorTransitionDictionary();
-
             DisableAllImportantControllers();
 
+            InitializeMiscellaneous();
+
             AsyncUpdate();
+
         }
 
         public void OnChangeDone()
         {
             _remindToSaveFlag = true;
+        }
+
+        private void InitializeMiscellaneous()
+        {
+            this.Text = AppPreferences.ApplicationName;
+
+            pictureBox1.BackColor = pictureBox_OriginalSprite.BackColor;
         }
 
         private void InitializePictureBox()
@@ -75,51 +72,6 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        private async void AsyncUpdate()
-        {
-            while(true)
-            {
-                button_ColorTransition_Add.Enabled = (listView_OriginalSpriteColors.SelectedItems.Count > 0);
-
-                button_ColorTransition_Edit.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
-                button_ColorTransition_Remove.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
-
-                if(_activeBitmaps.Count > 0)
-                {
-                    try
-                    {
-                        ShowColoredSprite((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex);
-                    }
-                    catch(Exception e) { /* Ignore */ }
-                }
-                else if(pictureBox_ColoredSprite.Image != null)
-                {
-                    pictureBox_ColoredSprite.Image = null;
-                }
-
-                await Task.Delay(100);
-            }
-        }
-
-        private void InitializeColorTransitionDictionary()
-        {
-            _colorTransitions = new Dictionary<string, List<ListViewItem>>()
-            {
-                [nameof(Rules.ColorOptions.Default)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Black)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Grey)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.White)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Red)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Orange)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Yellow)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Green)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Blue)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Purple)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Pink)] = new List<ListViewItem>(),
-                [nameof(Rules.ColorOptions.Brown)] = new List<ListViewItem>()
-            };
-        }
-
         private void InitializeComboBoxes()
         {
             comboBox_ColorOption.Items.AddRange((String[])Enum.GetNames(typeof(Rules.ColorOptions)));
@@ -128,24 +80,6 @@ namespace Starbound_ColorOptions_EasyPicker
             comboBox_Pose.Items.AddRange(Rules.PosesNNumOfFrames.Keys.ToArray());
             comboBox_Pose.SelectedIndex = 0;
             OnPoseChange();
-        }
-
-        private Rectangle GetFrameRect(string key, string pose, int frame)
-        {
-            Rectangle rectangle = new Rectangle(Rules.PosesNCoordinates[key][pose][frame].X * Rules.BitmapSizeDefault,
-                                                Rules.PosesNCoordinates[key][pose][frame].Y * Rules.BitmapSizeDefault,
-                                                Rules.BitmapSizeDefault,
-                                                Rules.BitmapSizeDefault);
-
-            Point offset = Rules.PosesNOffsets[key][pose][frame];
-
-            rectangle.X -= offset.X;
-            rectangle.Width += offset.X;
-
-            rectangle.Y += offset.Y;
-            rectangle.Height -= offset.Y;
-
-            return rectangle;
         }
 
         private void OnPoseChange()
@@ -165,32 +99,173 @@ namespace Starbound_ColorOptions_EasyPicker
             comboBox_Frame.SelectedIndex = 0;
         }
 
-        private void OnFrameChange()
+        private void DisableAllImportantControllers()
         {
-            if(!String.IsNullOrWhiteSpace(_lastDirectory) && !_dontDraw)
-                ShowOriginalSprite((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex);
+            button_ColorTransition_Add.Enabled = false;
+            button_ColorTransition_Remove.Enabled = false;
+            comboBox_ColorOption.Enabled = false;
+            comboBox_Pose.Enabled = false;
+            comboBox_Frame.Enabled = false;
+
+            groupBox1.Enabled = false;
+
+            saveToolStripMenuItem.Enabled = false;
+            colorOptionsToolStripMenuItem.Enabled = false;
+            closeToolStripMenuItem.Enabled = false;
+            checkBox_ShowMannequin.Enabled = false;
         }
 
-        private void OnGenderChange()
+        private void EnableAllImportantControllers()
+        {
+            comboBox_ColorOption.Enabled = true;
+            comboBox_Pose.Enabled = true;
+            comboBox_Frame.Enabled = true;
+
+            groupBox1.Enabled = true;
+
+            saveToolStripMenuItem.Enabled = true;
+            colorOptionsToolStripMenuItem.Enabled = true;
+            closeToolStripMenuItem.Enabled = true;
+            checkBox_ShowMannequin.Enabled = true;
+        }
+
+        private void AddTransitionColorsFromJSON(string file)
+        {
+            Dictionary<string, List<ColorTransitionItem>> colorTransitions = RulesProcessing.GetColorTransitionsFromJSON(file);
+
+            foreach(string key in Enum.GetNames(typeof(Rules.ColorOptions)))
+            {
+                if (!colorTransitions.ContainsKey(key)) continue;
+
+                foreach (ColorTransitionItem item1 in colorTransitions[key])
+                {
+                    bool skip = false;
+                    foreach(ColorTransitionItem item2 in _colorTransitionHandler[key])
+                    {
+                        if (item2.ColorFrom == item1.ColorFrom) skip = true;
+                    }
+
+                    if(!skip)
+                    {
+                        ColorTransitionItem colorTransitionItem = new ColorTransitionItem(item1.ColorFrom, item1.ColorTo);
+
+                        _colorTransitionHandler[key].Add(colorTransitionItem);
+                    }
+                }
+            }
+        }
+
+        private void AddOriginalColors()
+        {
+            listView_OriginalSpriteColors.Items.Clear();
+
+            List<Bitmap> bitmaps = new List<Bitmap>();
+
+            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
+            {
+                foreach(string spriteAnimation in SpriteSheetHandler.SpriteAnimations)
+                {
+                    Bitmap orig = _spriteSheetHandler.GetSpriteBitmap(spritePart);
+                    if (orig == null)
+                    {
+                        break;
+                    }
+
+                    foreach (Point p in Rules.PosesNCoordinates[spritePart][spriteAnimation])
+                    {
+                        Bitmap b = orig.Clone(new Rectangle(Rules.BitmapSizeDefault * p.X, Rules.BitmapSizeDefault * p.Y, Rules.BitmapSizeDefault, Rules.BitmapSizeDefault), orig.PixelFormat);
+
+                        bitmaps.Add(b);
+                    }
+                }
+
+            }
+
+            Color[] colors = BitmapProcessing.GetAllColorsFromBitmaps(bitmaps.ToArray());
+            //colors = BitmapProcessing.SortColorsByValue(colors);
+
+            for (int i = 0; i < colors.Length; i++)
+            {
+                string[] row = { string.Empty, ColorProcessing.HexConverter(colors[i]) };
+
+                ListViewItem listViewItem = new ListViewItem(row);
+                listViewItem.UseItemStyleForSubItems = false;
+                listViewItem.SubItems[0].BackColor = colors[i];
+
+                listView_OriginalSpriteColors.Items.Add(listViewItem);
+            }
+
+            //Bitmap b = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+
+            //listView_OriginalSpriteColors.Items.Clear();
+
+            //Color[] colors = BitmapProcessing.GetAllColorsFromBitmaps(b);
+            ////colors = BitmapProcessing.SortColorsByValue(colors);
+
+            //for(int i = 0; i < colors.Length; i++)
+            //{
+            //    string[] row = { string.Empty, ColorProcessing.HexConverter(colors[i]) };
+
+            //    ListViewItem listViewItem = new ListViewItem(row);
+            //    listViewItem.UseItemStyleForSubItems = false;
+            //    listViewItem.SubItems[0].BackColor = colors[i];
+
+            //    listView_OriginalSpriteColors.Items.Add(listViewItem);
+            //}
+        }
+
+        private void OpenColorTransitionEditor(params ListViewItem[] items)
+        {
+            new ColorTransitionEditingForm(this, items).ShowDialog();
+        }
+
+        private void OpenColorTransitionEditorHSV(params ListViewItem[] items)
+        {
+            new ColorTransitionEditingFormHSV(this, items).ShowDialog();
+        }
+
+
+
+
+
+        //////////////////////////////////
+        /*            Updates           */
+        //////////////////////////////////
+        ///
+
+        private void UpdateTransitionListView()
+        {
+            if(Enum.GetNames(typeof(Rules.ColorOptions)).ToList().Contains(comboBox_ColorOption.Text))
+            {
+                if(_colorTransitionHandler.ContainsKey(comboBox_ColorOption.Text))
+                {
+                    listView_ColorTransition.Items.Clear();
+
+                    foreach(ColorTransitionItem colorTransitionItem in _colorTransitionHandler[comboBox_ColorOption.Text])
+                    {
+                        listView_ColorTransition.Items.Add(colorTransitionItem.GetListViewItem);
+                    }
+                }
+            }
+        }
+        
+        private void UpdateOriginalSprite()
         {
             if (!String.IsNullOrWhiteSpace(_lastDirectory) && !_dontDraw)
-                ShowOriginalSprite((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex);
+            {
+                Bitmap result = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+                result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_OriginalSprite.Size);
+
+                // Display the result.
+                this.pictureBox_OriginalSprite.Image = result;
+
+                //AddOriginalColors(); // !!!
+            }
         }
-
-        private void ShowOriginalSprite(string pose, int frame)
+        
+        private void UpdateColoredSprite()
         {
-            Bitmap result = GetMergedOriginalBitmap(pose, frame);
-            result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_OriginalSprite.Size);
-
-            // Display the result.
-            this.pictureBox_OriginalSprite.Image = result;
-
-            AddOriginalColors();
-        }
-
-        private void ShowColoredSprite(string pose, int frame)
-        {
-            Bitmap result = GetMergedOriginalBitmap(pose, frame);
+            Bitmap result = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
             for(int i = 0; i < result.Width; i++)
             {
                 for (int j = 0; j < result.Height; j++)
@@ -207,66 +282,44 @@ namespace Starbound_ColorOptions_EasyPicker
 
             result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_ColoredSprite.Size);
 
-
             // Display the result.
             this.pictureBox_ColoredSprite.Image = result;
         }
 
-        private Bitmap GetMergedOriginalBitmap(string pose, int frame)
+        private async void AsyncUpdate()
         {
-            Bitmap result = new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault);
-
-            List<Bitmap> bitmaps = new List<Bitmap>();
-
-            foreach (string key in _originalSpriteBitmaps.Keys)
+            while(true)
             {
-                bool ignore = (key == "chestm" && _sex == Rules.Sex.Female) || (key == "chestf" && _sex == Rules.Sex.Male);
+                button_ColorTransition_Add.Enabled = (listView_OriginalSpriteColors.SelectedItems.Count > 0);
 
-                if (!ignore && _activeBitmaps.ContainsKey(key))
+                button_ColorTransition_Edit.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
+                button_ColorTransition_EditHSV.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
+                button_ColorTransition_Remove.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
+
+                if(_spriteSheetHandler.ActiveSpriteParts.Count > 0)
                 {
-                    Rectangle rectangle = GetFrameRect(key, pose, frame);
-
-                    System.Drawing.Imaging.PixelFormat format = _originalSpriteBitmaps[key].PixelFormat;
-
-                    // Clone a portion of the Bitmap object.
-                    Bitmap bPart = _originalSpriteBitmaps[key].Clone(rectangle, format);
-
-                    bitmaps.Add(bPart);
+                    try
+                    {
+                        UpdateColoredSprite();
+                    }
+                    catch(Exception e) { /* Ignore */ }
                 }
+                else if(pictureBox_ColoredSprite.Image != null)
+                {
+                    pictureBox_ColoredSprite.Image = null;
+                }
+
+                await Task.Delay(100);
             }
-
-            result = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
-
-            return result;
         }
 
-        private void DisableAllImportantControllers()
-        {
-            button_ColorTransition_Add.Enabled = false;
-            button_ColorTransition_Remove.Enabled = false;
-            comboBox_ColorOption.Enabled = false;
-            comboBox_Pose.Enabled = false;
-            comboBox_Frame.Enabled = false;
+        
 
-            groupBox1.Enabled = false;
 
-            saveToolStripMenuItem.Enabled = false;
-            colorOptionsToolStripMenuItem.Enabled = false;
-            closeToolStripMenuItem.Enabled = false;
-        }
-
-        private void EnableAllImportantControllers()
-        {
-            comboBox_ColorOption.Enabled = true;
-            comboBox_Pose.Enabled = true;
-            comboBox_Frame.Enabled = true;
-
-            groupBox1.Enabled = true;
-
-            saveToolStripMenuItem.Enabled = true;
-            colorOptionsToolStripMenuItem.Enabled = true;
-            closeToolStripMenuItem.Enabled = true;
-        }
+        //////////////////////////////////
+        /*            Events            */
+        //////////////////////////////////
+        /**/
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -287,62 +340,36 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     string folderPath = Path.GetDirectoryName(openFileDialog.FileName);
 
-                    Console.WriteLine($"Folder: {folderPath}");
-                    Console.WriteLine($"--------------------");
-
                     string[] files = Directory.GetFiles(folderPath);
-
-                    foreach(string file in files)
-                    {
-                        Console.WriteLine(file);
-                    }
-                    Console.WriteLine($"--------------------");
 
                     //System.Windows.Forms.MessageBox.Show("Files found: " + files.Length.ToString(), "Message");
 
                     bool foundAtLeastOneFile = false;
 
-                    List<string> searchingFileNames = new List<string>() 
-                    { 
-                        "Bsleeve", 
-                        "chestf", 
-                        "chestm", 
-                        "Fsleeve", 
-                        "head", 
-                        "pants", 
-                        "back"
-                    };
-
-                    _activeBitmaps.Clear();
-                    Console.WriteLine($"Matching:");
-                    Console.WriteLine($"--------------------");
-                    foreach (string file in searchingFileNames)
+                    _spriteSheetHandler.ActiveSpriteParts.Clear();
+                    foreach (string spritePart in SpriteSheetHandler.SpriteParts)
                     {
+                        string fullPath = folderPath + @"\" + spritePart + ".png";
 
-                        Console.WriteLine($"Full Path: {folderPath + @"\" + file + ".png"}");
-                        if (files.Contains(folderPath + @"\" + file + ".png"))
+                        if (files.Contains(fullPath))
                         {
                             foundAtLeastOneFile = true;
 
-                            Bitmap b = new Bitmap(folderPath + @"\" + file + ".png");
+                            Bitmap b = new Bitmap(folderPath + @"\" + spritePart + ".png");
 
-                            Console.WriteLine($"Before: {_originalSpriteBitmaps[file].Width}, {_originalSpriteBitmaps[file].Height}");
-                            _originalSpriteBitmaps[file] = b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat);
-                            Console.WriteLine($"After: {_originalSpriteBitmaps[file].Width}, {_originalSpriteBitmaps[file].Height}");
+                            _spriteSheetHandler.TrySetSpriteBitmap(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
 
-                            Console.WriteLine($"Result: OK. File: {file}");
-
-                            _activeBitmaps.Add(file, true);
+                            b.Dispose();
+                            _spriteSheetHandler.ActiveSpriteParts.Add(spritePart);
                         }
                     }
-                    Console.WriteLine($"--------------------");
 
                     if (foundAtLeastOneFile)
                     {
-                        InitializeColorTransitionDictionary();
+                        _colorTransitionHandler.Clear();
 
                         _lastDirectory = folderPath;
-                        this.Text = $"{_lastDirectory} - SB Color Options Picker";
+                        this.Text = $"{_lastDirectory} - {AppPreferences.ApplicationName}";
 
                         AddOriginalColors();
 
@@ -351,235 +378,61 @@ namespace Starbound_ColorOptions_EasyPicker
                         string[] legsFiles = System.IO.Directory.GetFiles(folderPath, "*.legs");
                         string[] backFiles = System.IO.Directory.GetFiles(folderPath, "*.back");
 
-                        if(chestFiles.Length > 0)
-                            AddTransitionColorsFromJSON(chestFiles[0]);
-
+                        if (chestFiles.Length > 0)
+                        {
+                            try
+                            {
+                                AddTransitionColorsFromJSON(chestFiles[0]);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"The file {Path.GetFileName(chestFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                            }
+                        }
                         if (headFiles.Length > 0)
-                            AddTransitionColorsFromJSON(headFiles[0]);
+                        {
+                            try
+                            {
+                                AddTransitionColorsFromJSON(headFiles[0]);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"The file {Path.GetFileName(headFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                            }
+                        }
 
                         if (legsFiles.Length > 0)
-                            AddTransitionColorsFromJSON(legsFiles[0]);
+                        {
+                            try
+                            {
+                                AddTransitionColorsFromJSON(legsFiles[0]);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"The file {Path.GetFileName(legsFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                            }
+                        }
 
                         if (backFiles.Length > 0)
-                            AddTransitionColorsFromJSON(backFiles[0]);
-                    }
-                    UpdateTransitionListView();
-
-                    OnPoseChange();
-                    EnableAllImportantControllers();
-                }
-            }
-        }
-
-        private void AddTransitionColorsFromJSON(string file)
-        {
-            Dictionary<string, List<Color>> transitionsFromColor = new Dictionary<string, List<Color>>();
-            Dictionary<string, List<Color>> transitionsToColor = new Dictionary<string, List<Color>>();
-
-            JObject json = JObject.Parse(File.ReadAllText(file));
-
-            JToken colorOptionToken;
-
-            if (json.TryGetValue("colorOptions", out colorOptionToken))
-            {
-                //Console.WriteLine("JArray: " + colorOptionToken.ToString());
-
-                JArray colorArray = JArray.Parse(colorOptionToken.ToString());
-
-                int length = Math.Min(colorArray.Count, Enum.GetNames(typeof(Rules.ColorOptions)).Length);
-
-                int i = 0;
-                foreach (JToken child in colorArray)
-                {
-                    if (i >= Enum.GetNames(typeof(Rules.ColorOptions)).Length)
-                        break;
-
-                    try
-                    {
-                        List<Color> transitionFromColor = new List<Color>();
-                        List<Color> transitionToColor = new List<Color>();
-
-                        JObject keyValuePairs = JObject.Parse(child.ToString());
-
-                        if (i == 1) Console.WriteLine("ColorOption: " + ((Rules.ColorOptions)i).ToString());
-                        if (i == 1) Console.WriteLine("JToken Child: " + child.ToString());
-
-                        foreach (KeyValuePair<string, JToken> pair in keyValuePairs)
                         {
-                            string keyHexCode, valueHexCode;
-                            Color keyColor, valueColor;
-                            if (i == 1) Console.WriteLine("JToken Pair: " + pair.ToString());
-                            keyHexCode = '#' + pair.Key;
-                            valueHexCode = '#' + (string)pair.Value;
-                            keyColor = System.Drawing.ColorTranslator.FromHtml(keyHexCode);
-                            valueColor = System.Drawing.ColorTranslator.FromHtml(valueHexCode);
-
-                            if (i == 1) Console.WriteLine("Not Contains: " + (!transitionFromColor.Contains(keyColor)).ToString());
-                            if (!transitionFromColor.Contains(keyColor))
+                            try
                             {
-                                transitionFromColor.Add(keyColor);
-                                transitionToColor.Add(valueColor);
+                                AddTransitionColorsFromJSON(backFiles[0]);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"The file {Path.GetFileName(backFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                             }
                         }
 
-                        transitionsFromColor.Add(((Rules.ColorOptions)i).ToString(), transitionFromColor);
-                        transitionsToColor.Add(((Rules.ColorOptions)i).ToString(), transitionToColor);
+                        EnableAllImportantControllers();
 
-                        i++;
-                    }
-                    catch (Exception ex)
-                    {
-                        continue;
+                        UpdateTransitionListView();
+
+                        OnPoseChange();
                     }
                 }
             }
-
-            foreach(string key in Enum.GetNames(typeof(Rules.ColorOptions)))
-            {
-                if (!transitionsFromColor.ContainsKey(key)) continue;
-                if (!transitionsToColor.ContainsKey(key)) continue;
-
-                List<Color> cFrom = transitionsFromColor[key];
-                List<Color> cTo = transitionsToColor[key];
-
-                Console.WriteLine(cFrom.Count);
-
-                for (int i = 0; i < cFrom.Count; i++)
-                {
-                    bool skip = false;
-                    foreach(ListViewItem item in _colorTransitions[key])
-                    {
-                        if (item.SubItems[0].BackColor == cFrom[i]) skip = true;
-                    }
-
-                    if(!skip)
-                    {
-                        string[] row = { string.Empty, ColorProcessing.HexConverter(cFrom[i]), string.Empty, string.Empty, ColorProcessing.HexConverter(cTo[i]) };
-
-                        ListViewItem listViewItem = new ListViewItem(row);
-                        listViewItem.UseItemStyleForSubItems = false;
-                        listViewItem.SubItems[0].BackColor = cFrom[i];
-                        listViewItem.SubItems[3].BackColor = cTo[i];
-
-                        _colorTransitions[key].Add(listViewItem);
-                    }
-                }
-            }
-        }
-
-        private Dictionary<string, List<ListViewItem>> GetListViewItemsFromJSON(string filePath)
-        {
-            Dictionary<string, List<Color>> transitionsFromColor = new Dictionary<string, List<Color>>();
-            Dictionary<string, List<Color>> transitionsToColor = new Dictionary<string, List<Color>>();
-
-            JObject json = JObject.Parse(File.ReadAllText(filePath));
-
-            JToken colorOptionToken;
-
-            if (json.TryGetValue("colorOptions", out colorOptionToken))
-            {
-                //Console.WriteLine("JArray: " + colorOptionToken.ToString());
-
-                JArray colorArray = JArray.Parse(colorOptionToken.ToString());
-
-                int length = Math.Min(colorArray.Count, Enum.GetNames(typeof(Rules.ColorOptions)).Length);
-
-                int i = 0;
-                foreach (JToken child in colorArray)
-                {
-                    if (i >= Enum.GetNames(typeof(Rules.ColorOptions)).Length)
-                        break;
-
-                    try
-                    {
-                        List<Color> transitionFromColor = new List<Color>();
-                        List<Color> transitionToColor = new List<Color>();
-
-                        JObject keyValuePairs = JObject.Parse(child.ToString());
-
-                        Console.WriteLine(keyValuePairs.ToString());
-
-                        foreach (KeyValuePair<string, JToken> pair in keyValuePairs)
-                        {
-                            string keyHexCode, valueHexCode;
-                            Color keyColor, valueColor;
-                            Console.WriteLine("JToken Pair: " + pair.ToString());
-                            keyHexCode = '#' + pair.Key;
-                            valueHexCode = '#' + (string)pair.Value;
-                            keyColor = System.Drawing.ColorTranslator.FromHtml(keyHexCode);
-                            valueColor = System.Drawing.ColorTranslator.FromHtml(valueHexCode);
-
-                            Console.WriteLine("Not Contains: " + (!transitionFromColor.Contains(keyColor)).ToString());
-                            if (!transitionFromColor.Contains(keyColor))
-                            {
-                                transitionFromColor.Add(keyColor);
-                                transitionToColor.Add(valueColor);
-                            }
-                        }
-
-                        transitionsFromColor.Add(((Rules.ColorOptions)i).ToString(), transitionFromColor);
-                        transitionsToColor.Add(((Rules.ColorOptions)i).ToString(), transitionToColor);
-
-                        i++;
-                    }
-                    catch (Exception ex)
-                    {
-                        continue;
-                    }
-                }
-            }
-
-            Dictionary<string, List<ListViewItem>> listViewItems = new Dictionary<string, List<ListViewItem>>();
-
-            foreach(string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-            {
-                if (!transitionsFromColor.ContainsKey(colorEnum)) continue;
-                if (!transitionsToColor.ContainsKey(colorEnum)) continue;
-
-                List<ListViewItem> items = new List<ListViewItem>();
-
-                for(int i = 0; i < transitionsFromColor[colorEnum].Count; i++)
-                {
-                    string[] row = { string.Empty, ColorProcessing.HexConverter(transitionsFromColor[colorEnum][i]), string.Empty, string.Empty, ColorProcessing.HexConverter(transitionsToColor[colorEnum][i])};
-
-                    ListViewItem item = new ListViewItem(row);
-                    item.UseItemStyleForSubItems = false;
-                    item.SubItems[0].BackColor = transitionsFromColor[colorEnum][i];
-                    item.SubItems[3].BackColor = transitionsToColor[colorEnum][i];
-
-                    items.Add(item);
-                }
-
-                listViewItems.Add(colorEnum, items);
-            }
-
-            return listViewItems;
-        }
-
-        private void AddOriginalColors()
-        {
-            Bitmap b = GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex);
-
-            listView_OriginalSpriteColors.Items.Clear();
-            
-            Color[] colors = BitmapProcessing.GetAllColorsFromBitmaps(b);
-            //colors = BitmapProcessing.SortColorsByValue(colors);
-
-            for(int i = 0; i < colors.Length; i++)
-            {
-                string[] row = { string.Empty, ColorProcessing.HexConverter(colors[i]) };
-
-                ListViewItem listViewItem = new ListViewItem(row);
-
-                listView_OriginalSpriteColors.Items.Add(listViewItem);
-                listView_OriginalSpriteColors.Items[i].UseItemStyleForSubItems = false;
-                listView_OriginalSpriteColors.Items[i].SubItems[0].BackColor = colors[i];
-            }
-        }
-
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            throw new Exception("OLOL");
         }
 
         private void comboBox_Pose_SelectedIndexChanged(object sender, EventArgs e)
@@ -589,7 +442,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void comboBox_Frame_SelectedIndexChanged(object sender, EventArgs e)
         {
-            OnFrameChange();
+            UpdateOriginalSprite();
         }
 
         private void listView_OriginalSpriteColors_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -601,6 +454,8 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             if(listView_OriginalSpriteColors.SelectedItems.Count > 0)
             {
+                bool madeChange = false;
+
                 for(int i = 0; i < listView_OriginalSpriteColors.SelectedItems.Count; i++)
                 {
                     ListViewItem item = listView_OriginalSpriteColors.SelectedItems[i];
@@ -613,20 +468,18 @@ namespace Starbound_ColorOptions_EasyPicker
                         if (existingItem.SubItems[0].BackColor == color) skip = true;
                     }
                     if (skip) continue;
+                    else madeChange = true;
 
-                    string[] row = { string.Empty, ColorProcessing.HexConverter(color), string.Empty, string.Empty, ColorProcessing.HexConverter(color) };
+                    ColorTransitionItem colorTransitionItem = new ColorTransitionItem(color, color);
 
-                    ListViewItem transitionItem = new ListViewItem(row);
-                    transitionItem.UseItemStyleForSubItems = false;
-                    transitionItem.SubItems[0].BackColor = color;
-                    transitionItem.SubItems[3].BackColor = color;
-
-                    _colorTransitions[comboBox_ColorOption.Text].Add(transitionItem);
-                    //listView_ColorTransition.Items.Add(transitionItem);
+                    _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
                     UpdateTransitionListView();
                 }
 
-                OnChangeDone();
+                listView_OriginalSpriteColors.SelectedItems.Clear();
+
+                if(madeChange)
+                    OnChangeDone();
             }
         }
 
@@ -651,13 +504,11 @@ namespace Starbound_ColorOptions_EasyPicker
                     itemList.Add(item);
                 }
 
+                // Deselect All Selected Items
+                listView_ColorTransition.SelectedItems.Clear();
+
                 OpenColorTransitionEditor(itemList.ToArray());
             }
-        }
-
-        private void OpenColorTransitionEditor(params ListViewItem[] items)
-        {
-            new ColorTransitionEditingForm(this, items).ShowDialog();
         }
 
         private void button_ColorTransition_Remove_Click(object sender, EventArgs e)
@@ -670,15 +521,97 @@ namespace Starbound_ColorOptions_EasyPicker
                     {
                         try
                         {
-                            _colorTransitions[comboBox_ColorOption.Text].RemoveAt(i);
+                            _colorTransitionHandler[comboBox_ColorOption.Text].RemoveAt(i);
                             UpdateTransitionListView();
-                            //listView_ColorTransition.Items.RemoveAt(i);
                         }
                         catch(Exception ex) { }
                     }
                 }
 
+                // Deselect All Selected Items
+                listView_ColorTransition.SelectedItems.Clear();
+
                 OnChangeDone();
+            }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_remindToSaveFlag)
+            {
+                switch (MessageBox.Show("You have unsaved changes. Would you like to save the changes?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3))
+                {
+                    case DialogResult.Cancel:
+                        return;
+                    case DialogResult.Yes:
+                        string jsonText = RulesProcessing.GetJSONStringFromColorTransitionHandler(_colorTransitionHandler);
+
+                        Stream myStream;
+                        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+                        saveFileDialog1.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
+                        saveFileDialog1.FilterIndex = 1;
+                        saveFileDialog1.RestoreDirectory = true;
+
+                        switch (saveFileDialog1.ShowDialog())
+                        {
+                            case DialogResult.OK:
+                                _remindToSaveFlag = false;
+                                
+                                if ((myStream = saveFileDialog1.OpenFile()) != null)
+                                {
+                                    byte[] data = Encoding.ASCII.GetBytes(jsonText);
+
+                                    myStream.Write(data, 0, data.Length);
+
+                                    myStream.Close();
+                                }
+                                break;
+                            default:
+                                return;
+                        }
+
+                        break;
+                    case DialogResult.No:
+                        _remindToSaveFlag = false;
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            _colorTransitionHandler.Clear();
+            _spriteSheetHandler.ActiveSpriteParts.Clear();
+
+            this.listView_OriginalSpriteColors.Items.Clear();
+            this.listView_ColorTransition.Items.Clear();
+
+            this.pictureBox_OriginalSprite.Image = null;
+            this.pictureBox_ColoredSprite.Image = null;
+
+            DisableAllImportantControllers();
+
+            this.Text = AppPreferences.ApplicationName;
+
+            _lastDirectory = String.Empty;
+        }
+
+        private void radioButton_Male_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton_Male.Checked)
+            {
+                _sex = Rules.Sex.Male;
+                UpdateOriginalSprite();
+            }
+        }
+
+        private void radioButton_Female_CheckedChanged(object sender, EventArgs e)
+        {
+            if (radioButton_Female.Checked)
+            {
+                _sex = Rules.Sex.Female;
+                UpdateOriginalSprite();
             }
         }
 
@@ -687,15 +620,181 @@ namespace Starbound_ColorOptions_EasyPicker
             UpdateTransitionListView();
         }
 
-        private void UpdateTransitionListView()
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(Enum.GetNames(typeof(Rules.ColorOptions)).ToList().Contains(comboBox_ColorOption.Text))
+            this.Close();
+        }
+
+        private void colorOptionsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            string filePath = string.Empty;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                if(_colorTransitions != null && _colorTransitions.ContainsKey(comboBox_ColorOption.Text))
+                //openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    listView_ColorTransition.Items.Clear();
-                    listView_ColorTransition.Items.AddRange(_colorTransitions[comboBox_ColorOption.Text].ToArray());
+                    //Get the path of specified file
+                    filePath = openFileDialog.FileName;
                 }
+                else
+                {
+                    return;
+                }
+            }
+
+            try 
+            {
+                Dictionary<string, List<ColorTransitionItem>> importedItems = RulesProcessing.GetColorTransitionsFromJSON(filePath);
+
+                bool importConflict = false;
+                int transitionItemsCount = 0;
+                foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                {
+                    if (!importedItems.ContainsKey(colorEnum)) continue;
+
+                    transitionItemsCount += this._colorTransitionHandler[colorEnum].Count;
+
+                    foreach (ColorTransitionItem item1 in importedItems[colorEnum])
+                    {
+                        foreach (ColorTransitionItem item2 in this._colorTransitionHandler[colorEnum])
+                        {
+                            if (item1.ColorFrom == item2.ColorFrom)
+                            {
+                                importConflict = true;
+                            }
+                        }
+                    }
+                }
+
+                if (transitionItemsCount > 0)
+                {
+                    MergeReplaceOrCancelForm importModeForm = new MergeReplaceOrCancelForm();
+                    importModeForm.ShowDialog();
+
+                    if (importModeForm.DialogResult == DialogResult.Yes)
+                    {
+                        if (!importConflict)
+                        {
+                            foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                            {
+                                if (!importedItems.ContainsKey(colorEnum)) continue;
+
+                                foreach (ColorTransitionItem item1 in importedItems[colorEnum])
+                                {
+                                    this._colorTransitionHandler[colorEnum].Add(item1);
+                                }
+                            }
+
+                            UpdateTransitionListView();
+                        }
+                        else
+                        {
+                            string text = "Conflicting records found. Do you want conflicting imported records to replace the current ones?";
+                            switch (MessageBox.Show(text, "Transition Conflict", MessageBoxButtons.YesNoCancel))
+                            {
+                                case DialogResult.Yes:
+                                    foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                                    {
+                                        if (!importedItems.ContainsKey(colorEnum)) continue;
+
+                                        foreach (ColorTransitionItem item1 in importedItems[colorEnum])
+                                        {
+                                            bool replaced = false;
+
+                                            foreach (ColorTransitionItem item2 in this._colorTransitionHandler[colorEnum])
+                                            {
+                                                if (item1.ColorFrom == item2.ColorFrom)
+                                                {
+                                                    item2.ColorTo = item1.ColorTo;
+
+                                                    replaced = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!replaced)
+                                            {
+                                                this._colorTransitionHandler[colorEnum].Add(item1);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case DialogResult.No:
+                                    foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                                    {
+                                        foreach (ColorTransitionItem item1 in importedItems[colorEnum])
+                                        {
+                                            bool skip = false;
+
+                                            foreach (ColorTransitionItem item2 in this._colorTransitionHandler[colorEnum])
+                                            {
+                                                if (item1.ColorFrom == item2.ColorFrom)
+                                                {
+                                                    skip = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!skip)
+                                            {
+                                                this._colorTransitionHandler[colorEnum].Add(item1);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case DialogResult.Cancel:
+                                    return;
+                                default:
+                                    return;
+                            }
+
+                            UpdateTransitionListView();
+                        }
+                    }
+                    else if (importModeForm.DialogResult == DialogResult.No)
+                    {
+                        _colorTransitionHandler.Clear();
+
+                        foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                        {
+                            if (!importedItems.ContainsKey(colorEnum)) continue;
+
+                            foreach (ColorTransitionItem item in importedItems[colorEnum])
+                            {
+                                _colorTransitionHandler[colorEnum].Add(item);
+                            }
+                        }
+
+                        UpdateTransitionListView();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
+                    {
+                        if (!importedItems.ContainsKey(colorEnum)) continue;
+
+                        foreach (ColorTransitionItem item1 in importedItems[colorEnum])
+                        {
+                            this._colorTransitionHandler[colorEnum].Add(item1);
+                        }
+                    }
+
+                    UpdateTransitionListView();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("The file has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
             }
         }
 
@@ -718,15 +817,9 @@ namespace Starbound_ColorOptions_EasyPicker
                 }
                 if (skip) return;
 
-                string[] row = { string.Empty, ColorProcessing.HexConverter(c), string.Empty, string.Empty, ColorProcessing.HexConverter(c) };
+                ColorTransitionItem colorTransitionItem = new ColorTransitionItem(c, c);
 
-                ListViewItem transitionItem = new ListViewItem(row);
-                transitionItem.UseItemStyleForSubItems = false;
-                transitionItem.SubItems[0].BackColor = c;
-                transitionItem.SubItems[3].BackColor = c;
-
-                _colorTransitions[comboBox_ColorOption.Text].Add(transitionItem);
-                //listView_ColorTransition.Items.Add(transitionItem);
+                _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
                 UpdateTransitionListView();
 
                 OnChangeDone();
@@ -752,15 +845,9 @@ namespace Starbound_ColorOptions_EasyPicker
                 }
                 if (!skip)
                 {
-                    string[] row = { string.Empty, ColorProcessing.HexConverter(c), string.Empty, string.Empty, ColorProcessing.HexConverter(c) };
+                    ColorTransitionItem colorTransitionItem = new ColorTransitionItem(c, c);
 
-                    ListViewItem transitionItem = new ListViewItem(row);
-                    transitionItem.UseItemStyleForSubItems = false;
-                    transitionItem.SubItems[0].BackColor = c;
-                    transitionItem.SubItems[3].BackColor = c;
-
-                    _colorTransitions[comboBox_ColorOption.Text].Add(transitionItem);
-                    //listView_ColorTransition.Items.Add(transitionItem);
+                    _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
                     UpdateTransitionListView();
 
                     OnChangeDone();
@@ -779,62 +866,11 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        private void radioButton_Male_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton_Male.Checked)
-            {
-                _sex = Rules.Sex.Male;
-                OnGenderChange();
-            }
-        }
-
-        private void radioButton_Female_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton_Female.Checked)
-            {
-                _sex = Rules.Sex.Female;
-                OnGenderChange();
-            }
-        }
-
         private void colorOptionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string jsonText = GetJSONStringFromTransitions();
+            string jsonText = RulesProcessing.GetJSONStringFromColorTransitionHandler(_colorTransitionHandler);
 
             new OutputForm(jsonText).ShowDialog();
-
-            //Console.WriteLine(json.ToString());
-        }
-
-        private string GetJSONStringFromTransitions()
-        {
-            JObject json = new JObject();
-
-            JArray jArray = new JArray();
-            foreach (string colorOption in Enum.GetNames(typeof(Rules.ColorOptions)))
-            {
-                JObject keyValuePairs = new JObject();
-                foreach (ListViewItem item in _colorTransitions[colorOption])
-                {
-                    KeyValuePair<string, string> keyValuePair = new KeyValuePair<string, string>(item.SubItems[1].Text.Substring(1), item.SubItems[4].Text.Substring(1));
-                    JToken jToken = JToken.FromObject(keyValuePair);
-
-                    keyValuePairs.Add(new JProperty(keyValuePair.Key, keyValuePair.Value));
-                }
-
-                jArray.Add(keyValuePairs);
-            }
-
-            json.Add("colorOptions", jArray);
-
-            return json.ToString();
-
-            //Console.WriteLine(json.ToString());
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -847,7 +883,7 @@ namespace Starbound_ColorOptions_EasyPicker
                     e.Cancel = true;
                     break;
                 case DialogResult.Yes:
-                    string jsonText = GetJSONStringFromTransitions();
+                    string jsonText = RulesProcessing.GetJSONStringFromColorTransitionHandler(_colorTransitionHandler);
 
                     Stream myStream;
                     SaveFileDialog saveFileDialog1 = new SaveFileDialog();
@@ -882,189 +918,91 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        private void colorOptionsToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            //string fileContent = string.Empty;
-            string filePath = string.Empty;
+            string message = 
+                $"SB Color Options Picker v{AppPreferences.ApplicationVersion}" + Environment.NewLine
+                + "______________________________" + Environment.NewLine
+                + "D. Sorochinsky (aka Demexis)" + Environment.NewLine
+                + "@2021" + Environment.NewLine;
 
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            MessageBox.Show(message, "Author", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+        }
+
+        private void button_EditHSV_Click(object sender, EventArgs e)
+        {
+            if (listView_ColorTransition.SelectedItems.Count > 0)
             {
-                //openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
-                openFileDialog.FilterIndex = 1;
-                openFileDialog.RestoreDirectory = true;
+                List<ListViewItem> itemList = new List<ListViewItem>();
 
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                foreach (ListViewItem item in listView_ColorTransition.SelectedItems)
                 {
-                    //Get the path of specified file
-                    filePath = openFileDialog.FileName;
-
-                    ////Read the contents of the file into a stream
-                    //Stream fileStream = openFileDialog.OpenFile();
-
-                    //using (StreamReader reader = new StreamReader(fileStream))
-                    //{
-                    //    fileContent = reader.ReadToEnd();
-                    //}
-                }
-                else
-                {
-                    return;
-                }
-            }
-
-            Dictionary<string, List<ListViewItem>> importedItems = GetListViewItemsFromJSON(filePath);
-
-            Console.WriteLine("COUNT: " + importedItems.Count);
-
-            bool importConflict = false;
-            int transitionItemsCount = 0;
-            foreach(string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-            {
-                if (!importedItems.ContainsKey(colorEnum)) continue;
-
-                transitionItemsCount += this._colorTransitions[colorEnum].Count;
-
-                foreach (ListViewItem item1 in importedItems[colorEnum])
-                {
-                    foreach (ListViewItem item2 in this._colorTransitions[colorEnum])
-                    {
-                        if(item1.SubItems[0].BackColor == item2.SubItems[0].BackColor)
-                        {
-                            importConflict = true;
-                        }
-                    }
-                }
-            }
-
-            Console.WriteLine(transitionItemsCount);
-
-            if(transitionItemsCount > 0)
-            {
-                MergeReplaceOrCancelForm importModeForm = new MergeReplaceOrCancelForm();
-                importModeForm.ShowDialog();
-
-                if (importModeForm.DialogResult == DialogResult.Yes)
-                {
-                    if(!importConflict)
-                    {
-                        foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-                        {
-                            if (!importedItems.ContainsKey(colorEnum)) continue;
-
-                            foreach (ListViewItem item1 in importedItems[colorEnum])
-                            {
-                                this._colorTransitions[colorEnum].Add(item1);
-                            }
-                        }
-
-                        UpdateTransitionListView();
-                    }
-                    else
-                    {
-                        string text = "Conflicting records found. Do you want conflicting imported records to replace the current ones?";
-                        switch(MessageBox.Show(text, "Transition Conflict", MessageBoxButtons.YesNoCancel))
-                        {
-                            case DialogResult.Yes:
-                                foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-                                {
-                                    if (!importedItems.ContainsKey(colorEnum)) continue;
-
-                                    foreach (ListViewItem item1 in importedItems[colorEnum])
-                                    {
-                                        bool replaced = false;
-
-                                        foreach (ListViewItem item2 in this._colorTransitions[colorEnum])
-                                        {
-                                            if (item1.SubItems[0].BackColor == item2.SubItems[0].BackColor)
-                                            {
-                                                item2.SubItems[3].BackColor = item1.SubItems[3].BackColor;
-                                                item2.SubItems[4].Text = ColorProcessing.HexConverter(item2.SubItems[3].BackColor);
-
-                                                replaced = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if(!replaced)
-                                        {
-                                            this._colorTransitions[colorEnum].Add(item1);
-                                        }
-                                    }
-                                }
-                                break;
-                            case DialogResult.No:
-                                foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-                                {
-                                    foreach (ListViewItem item1 in importedItems[colorEnum])
-                                    {
-                                        bool skip = false;
-
-                                        foreach (ListViewItem item2 in this._colorTransitions[colorEnum])
-                                        {
-                                            if (item1.SubItems[0].BackColor == item2.SubItems[0].BackColor)
-                                            {
-                                                skip = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (!skip)
-                                        {
-                                            this._colorTransitions[colorEnum].Add(item1);
-                                        }
-                                    }
-                                }
-                                break;
-                            case DialogResult.Cancel:
-                                return;
-                            default:
-                                return;
-                        }
-
-                        UpdateTransitionListView();
-                    }
-                }
-                else if(importModeForm.DialogResult == DialogResult.No)
-                {
-                    this._colorTransitions = importedItems;
-                    UpdateTransitionListView();
-                }
-                else
-                {
-                    return;
-                }
-            }
-            else
-            {
-                foreach (string colorEnum in Enum.GetNames(typeof(Rules.ColorOptions)))
-                {
-                    if (!importedItems.ContainsKey(colorEnum)) continue;
-
-                    foreach (ListViewItem item1 in importedItems[colorEnum])
-                    {
-                        this._colorTransitions[colorEnum].Add(item1);
-                    }
+                    itemList.Add(item);
                 }
 
-                UpdateTransitionListView();
+                // Deselect All Selected Items
+                listView_ColorTransition.SelectedItems.Clear();
+
+                OpenColorTransitionEditorHSV(itemList.ToArray());
             }
         }
 
-        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void checkBox_ShowMannequin_CheckedChanged(object sender, EventArgs e)
         {
-            InitializeColorTransitionDictionary();
+            _spriteSheetHandler.ShowMannequin = checkBox_ShowMannequin.Checked;
+            UpdateOriginalSprite();
+        }
 
-            DisableAllImportantControllers();
+        private void gitHubURLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(@"https://github.com/Demexis/Starbound---Color-Options-Picker");
+            }
+            catch (System.ComponentModel.Win32Exception noBrowser)
+            {
+                if (noBrowser.ErrorCode == -2147467259)
+                    MessageBox.Show(noBrowser.Message);
+            }
+        }
 
-            UpdateTransitionListView();
+        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string html = "<!doctype html><html lang='en'> <head> <meta charset='utf - 8'> <title>D. Sorochinsky - HTML 1.PW - Battlestar Galactica</title> <meta name='description' content='Small HTML doc'> <meta name='viewport' content='width = device - width, initial - scale = 1'> <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap'> </head><style>* { box-sizing: border-box;}html { font-family: -applesystem, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sansserif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; color: #212121; line-height: 1.5;}body { margin: 0; background-image: url('https://wallpaperbat.com/img/225446-minimalist-space-wallpaper-top-free-minimalist-space.png'); background-repeat: no-repeat; background-attachment: fixed; background-size: cover;}h1, h2, h3 { font-family: 'Roboto', cursive; padding: 1rem;}header { background-color: rgb(72, 100, 100); padding: 4rem 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}nav { background-color: rgb(45, 65, 151); padding: 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}footer { background-color: rgb(0, 0, 0); padding: 4rem 1rem; margin-top: 4rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}header p, footer p { margin: 0;}nav ul { margin: 0; padding: 0;}nav ul li { list-style-type: none; display: inline-block;}nav ul li::after { content: ' § ';}nav ul li:last-child::after { content: '';}nav ul li a { color:rgb(255, 190, 50);text-decoration:none}main { padding: 0 1rem;}main p { text-align: justify; padding: 1rem;}.related-panel h3 { text-align: center;}.related-panel img { display: block; margin-left: auto; margin-right: auto; max-width: 100%;}figure { display: block; width: 100%; margin: 0; position: relative;}figure img { display: block; width: 100%;}figure figcaption { position: absolute; left: 0; bottom: 0; display: block; width: 100%; padding: 0.5rem 1rem; background-color: rgba(0, 0, 0, 0.3); color: white; font-family: 'Roboto', cursive;}@media screen and (min-width: 992px) { html { font-size: 16px; } main { padding: 0; } .container { display: block; width: 992px; margin-left: auto; margin-right: auto; } .container_body { display: block; width: 992px; margin-left: auto; margin-right: auto; background-color: rgba(203, 213, 218, 0.98); border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596); } } .columns-2 { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: stretch;}.columns-2 article { flex: 2; margin-right: 0.5rem;}.columns-2 aside { flex: 1; margin-left: 0.5rem;}.related-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 1rem; row-gap: 1rem;}.related-panel { padding: 1rem;}table.modern { /* platums */ width: 100%; /* likvidē atstarpi starp šūnām */ border-collapse: collapse; /* tabulas ārējais rāmis */ border: 1px solid #01579B;}/* tabulas galvenes šūnas */table.modern th { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* fona krāsa */ background-color: #01579B; /* teksta krāsa */ color: #FFFFFF; /* teksta līdzināšana */ text-align: left;}/* tabulas datu šūnas */table.modern td { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* teksta krāsa */ color: #212121;}/* hipersaites tabulas datu šūnās */table.modern td a { /* teksta krāsa */ color: #2d8f70; /* teksta biezums */ font-weight: bold;}/* tabulas rindu 'zebras' krāsojums *//* selektors 'tr:nth-child(even)' atlasa katru otro tabulas rindu */table.modern tr:nth-child(even) td { /* fona krāsa */ background-color: #E1F5FE;}/* tabulas rindu izcēluma (hover) krāsojums *//* selektors 'tr:hover' darbojas tikai tad, kad kursors atrodas virs tabulas rindas */table.modern tr:hover td { /* fona krāsa */ background-color: #B3E5FC;}</style> <body> <!-- galvene --> <header class='container'> <p>1. Practical Work</p> </header> <!-- navigācijas bloks --> <nav class='container'> <ul> <li> <a href='https://en.wikipedia.org/wiki/Battlestar_Galactica' target='_blank'>Wikipedia</a> </li> <li> <a href='https://galactica.fandom.com/wiki/Battlestar_Galactica_Wiki' target='_blank'>Wiki Fandom</a> </li> <li> <a href='https://www.google.com/search?q=battlestar+galactica&sxsrf=AOaemvL-CzyGr_JFWwqgs7JhPbyGDQ9M2A%3A1634932835705&source=hp&ei=YxhzYfzNKKOorgT6opf4AQ&iflsig=ALs-wAMAAAAAYXMmcySlm3TBLgFwXj6TIdHPTVxg_rZ0&oq=battlestar+galactica&gs_lcp=Cgdnd3Mtd2l6EAMYADIECCMQJzIECCMQJzIECCMQJzIFCC4QywEyBQgAEIAEMgUILhCABDIFCC4QgAQyBQgAEIAEMgUILhCABDIFCAAQgAQ6BAgAEEM6BQgAEJECOgoIABCABBCHAhAUOgQILhBDOgoILhDHARDRAxBDOgsILhCABBDHARDRAzoFCAAQywFQnwJY0hBgshpoAHAAeACAAYkBiAHxCZIBBDEzLjKYAQCgAQE&sclient=gws-wiz' target='_blank'>Google Search</a> </li> <li> <a href='https://git-scm.com/' target='_blank'>Git</a> </li> </ul> </nav> <!-- saturs --> <main class='container_body'> <div class='columns-2'> <article> <h1>Battlestar Galactica</h1> <figure> <img src='https://www.kotaku.com.au/content/uploads/sites/3/2017/08/02/lekiwrpl78nqsmih8j8a.jpg' alt='Battlestar_Galactica_Logo'> <figcaption>Battlestar Galactica</figcaption> </figure> <p><em>Battlestar Galactica</em> (BSG) is an American military science fiction television series, and part of the Battlestar Galactica franchise.</p> <p>A group of humans aboard a battleship, Battlestar Galactica, are forced to abandon their planet after being attacked by Cylons. They try to evade the Cylons while searching for their true home, Earth.</p> </article> <aside> <h2>Characters</h2> <table class='modern'> <tr> <th>Full Name</th> <th>Homeworld</th> </tr> <tr> <td>&ensp;William 'Bill' Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Leland Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Gaius Baltar</td> <td>&ensp;Aerilon</td> </tr> <tr> <td>&ensp;Kara Thrace</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Laura Roslin</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Helena Cain</td> <td>&ensp;Tauron</td> </tr> <tr> <td>&ensp;Sharon Valerii</td> <td>&ensp;The Colony</td> </tr> </table> </aside> </div> <section> <h2>Main characters</h2> <div class='related-grid'> <section class='related-panel'> <h3>William 'Bill' Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/c/ce/William_Adama_headshot.jpg/revision/latest/scale-to-width-down/338?cb=20100326215247' alt='William'> <p>Admiral William Adama was an officer in the Colonial Fleet. Born to a Caprican family of Tauron heritage, Adama was conscripted into military service during the Cylon War, in which he served as a Raptor and Viper pilot under the callsign 'Husker'.</p> </section> <section class='related-panel'> <h3>Leland Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/37/LeeAdama.jpg/revision/latest/scale-to-width-down/350?cb=20090601114012' alt='Leland'> <p>Leland Joseph Adama, commonly referred to as just 'Lee' or by his call sign of 'Apollo', is a former Colonial Fleet Reserve officer who became the Caprican delegate to the Quorum of Twelve, then later the interim President of the Twelve Colonies of Kobol. He is the sole surviving son of William Adama.</p> </section> <section class='related-panel'> <h3>Gaius Baltar</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/3b/BaltarSeason4.png/revision/latest/scale-to-width-down/350?cb=20180805033032' alt='Gaius'> <p>Dr. Gaius Baltar was an accomplished computer scientist of Aerelonean descent. Shunning his farming background, Baltar became a celebrity figure with political connections, which enabled a successful push for the re-introduction of software networking in military vessels in the aftermath of the Cylon War.</p> </section> <section class='related-panel'> <h3>Laura Roslin</h3> <img src='https://static.wikia.nocookie.net/galactica/images/2/27/LauraRoslinS4.jpg/revision/latest/scale-to-width-down/350?cb=20180805034141' alt='Laura'> <p>Laura Roslin was the President of the United Colonies of Kobol, having served as Secretary of Education under President Richard Adar, and sworn into office as the highest ranked government official who survived the Fall of the Twelve Colonies. Roslin subsequently became the political leader of the remnants of the Colonial fleet, along with Commander William Adama.</p> </section> <section class='related-panel'> <h3>Kara Thrace</h3> <img src='https://static.wikia.nocookie.net/galactica/images/5/55/Kara_Thrace.jpg/revision/latest/scale-to-width-down/350?cb=20090601070409' alt='Kara'> <p>Kara 'Starbuck' Thrace was a Viper pilot in the Colonial Fleet. She is a gifted Viper pilot, with an attitude that at times thwarts her career advancement.</p> </section> </div> </section> </main> <!-- kājene --> <footer> <p class='container'>Devid Sorochinsky, VeA, 2021</p> </footer> </body></html>";
+            File.WriteAllText("tempHtml.html", html);
 
-            this.pictureBox_OriginalSprite.Image = null;
-            this.pictureBox_ColoredSprite.Image = null;
+            //System.Diagnostics.Process.Start("http:");
 
-            _activeBitmaps.Clear();
+            System.Diagnostics.Process.Start("tempHtml.html");
 
-            this.listView_OriginalSpriteColors.Clear();
+            Thread.Sleep(1000);
+            //System.Diagnostics.Process.Start("about:Blank", html);
+
+            if(File.Exists("tempHtml.html"))
+            {
+                File.Delete("tempHtml.html");
+            }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            Color previousColor = pictureBox1.BackColor;
+
+            switch(colorDialog1.ShowDialog())
+            {
+                case DialogResult.OK:
+                    Color c = colorDialog1.Color;
+
+                    pictureBox1.BackColor = c;
+                    pictureBox_ColoredSprite.BackColor = c;
+                    pictureBox_OriginalSprite.BackColor = c;
+                    break;
+                default:
+                    pictureBox1.BackColor = previousColor;
+                    pictureBox_ColoredSprite.BackColor = previousColor;
+                    pictureBox_OriginalSprite.BackColor = previousColor;
+                    break;
+            }
         }
     }
 }

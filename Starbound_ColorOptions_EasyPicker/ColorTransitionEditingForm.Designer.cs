@@ -146,7 +146,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(190, 13);
+            this.label4.Location = new System.Drawing.Point(190, 37);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(30, 13);
             this.label4.TabIndex = 10;
@@ -154,7 +154,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // textBox_Blue
             // 
-            this.textBox_Blue.Location = new System.Drawing.Point(211, 145);
+            this.textBox_Blue.Location = new System.Drawing.Point(211, 169);
             this.textBox_Blue.Name = "textBox_Blue";
             this.textBox_Blue.Size = new System.Drawing.Size(53, 20);
             this.textBox_Blue.TabIndex = 9;
@@ -164,7 +164,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(190, 148);
+            this.label3.Location = new System.Drawing.Point(190, 172);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 13);
             this.label3.TabIndex = 8;
@@ -172,7 +172,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // trackBar_Blue
             // 
-            this.trackBar_Blue.Location = new System.Drawing.Point(270, 138);
+            this.trackBar_Blue.Location = new System.Drawing.Point(270, 162);
             this.trackBar_Blue.Maximum = 255;
             this.trackBar_Blue.Name = "trackBar_Blue";
             this.trackBar_Blue.Size = new System.Drawing.Size(164, 45);
@@ -182,7 +182,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // textBox_Green
             // 
-            this.textBox_Green.Location = new System.Drawing.Point(211, 94);
+            this.textBox_Green.Location = new System.Drawing.Point(211, 118);
             this.textBox_Green.Name = "textBox_Green";
             this.textBox_Green.Size = new System.Drawing.Size(53, 20);
             this.textBox_Green.TabIndex = 6;
@@ -192,7 +192,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(190, 97);
+            this.label2.Location = new System.Drawing.Point(190, 121);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(15, 13);
             this.label2.TabIndex = 5;
@@ -200,7 +200,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // trackBar_Green
             // 
-            this.trackBar_Green.Location = new System.Drawing.Point(270, 87);
+            this.trackBar_Green.Location = new System.Drawing.Point(270, 111);
             this.trackBar_Green.Maximum = 255;
             this.trackBar_Green.Name = "trackBar_Green";
             this.trackBar_Green.Size = new System.Drawing.Size(164, 45);
@@ -210,7 +210,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // textBox_Red
             // 
-            this.textBox_Red.Location = new System.Drawing.Point(211, 43);
+            this.textBox_Red.Location = new System.Drawing.Point(211, 67);
             this.textBox_Red.Name = "textBox_Red";
             this.textBox_Red.Size = new System.Drawing.Size(53, 20);
             this.textBox_Red.TabIndex = 3;
@@ -220,7 +220,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(190, 46);
+            this.label1.Location = new System.Drawing.Point(190, 70);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(15, 13);
             this.label1.TabIndex = 2;
@@ -228,7 +228,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // trackBar_Red
             // 
-            this.trackBar_Red.Location = new System.Drawing.Point(270, 36);
+            this.trackBar_Red.Location = new System.Drawing.Point(270, 60);
             this.trackBar_Red.Maximum = 255;
             this.trackBar_Red.Name = "trackBar_Red";
             this.trackBar_Red.Size = new System.Drawing.Size(164, 45);

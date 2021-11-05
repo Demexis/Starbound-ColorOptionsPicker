@@ -35,5 +35,19 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             this.Dispose();
         }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            PlaceForm();
+            base.OnLoad(e);
+        }
+
+        private void PlaceForm()
+        {
+            Form mainForm = Application.OpenForms[nameof(MainForm)];
+
+            this.Left = mainForm.Right - (mainForm.Right - mainForm.Left) / 2 - (this.Right - this.Left) / 2;
+            this.Top = mainForm.Bottom - (mainForm.Bottom - mainForm.Top) / 2 - (this.Bottom - this.Top) / 2;
+        }
     }
 }

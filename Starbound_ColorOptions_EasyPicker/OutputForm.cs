@@ -18,6 +18,12 @@ namespace Starbound_ColorOptions_EasyPicker
             InitializeComponent();
 
             richTextBox1.Text = jsonText;
+
+            // Get the bitmap.
+            Bitmap bm = new Bitmap(Properties.Resources.sb_cop_icon);
+
+            // Convert to an icon and use for the form's icon.
+            this.Icon = Icon.FromHandle(bm.GetHicon());
         }
 
         private void button_CopyToClipboard_Click(object sender, EventArgs e)
@@ -36,6 +42,13 @@ namespace Starbound_ColorOptions_EasyPicker
 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                Form form = Application.OpenForms["MainForm"];
+                MainForm mainForm = form != null ? (MainForm)form : null;
+                if (mainForm != null)
+                {
+                    mainForm.RemindToSaveFlag = false;
+                }
+
                 if ((myStream = saveFileDialog1.OpenFile()) != null)
                 {
                     byte[] data = Encoding.ASCII.GetBytes(richTextBox1.Text);

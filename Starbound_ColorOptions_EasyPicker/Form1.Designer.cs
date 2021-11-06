@@ -43,6 +43,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gitHubURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -61,6 +62,11 @@ namespace Starbound_ColorOptions_EasyPicker
             this.radioButton_Male = new System.Windows.Forms.RadioButton();
             this.radioButton_Female = new System.Windows.Forms.RadioButton();
             this.label8 = new System.Windows.Forms.Label();
+            this.checkBox_ShowMannequin = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label9 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.comboBox_Frame = new System.Windows.Forms.ComboBox();
@@ -88,13 +94,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.button_ColorTransition_Add = new System.Windows.Forms.Button();
-            this.checkBox_ShowMannequin = new System.Windows.Forms.CheckBox();
-            this.gitHubURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label9 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -118,6 +118,9 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer4.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.flowLayoutPanel9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.flowLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).BeginInit();
             this.splitContainer5.Panel1.SuspendLayout();
@@ -135,9 +138,6 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel7.SuspendLayout();
             this.flowLayoutPanel6.SuspendLayout();
             this.flowLayoutPanel8.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.flowLayoutPanel9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -169,21 +169,21 @@ namespace Starbound_ColorOptions_EasyPicker
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.newToolStripMenuItem.Text = "Open...";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(113, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(109, 6);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.colorOptionsToolStripMenuItem1});
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.openToolStripMenuItem.Text = "Import";
             // 
             // colorOptionsToolStripMenuItem1
@@ -198,7 +198,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.saveToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.colorOptionsToolStripMenuItem});
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.saveToolStripMenuItem.Text = "Export";
             // 
             // colorOptionsToolStripMenuItem
@@ -211,24 +211,24 @@ namespace Starbound_ColorOptions_EasyPicker
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(113, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(109, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(113, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(109, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -245,14 +245,21 @@ namespace Starbound_ColorOptions_EasyPicker
             // manualToolStripMenuItem
             // 
             this.manualToolStripMenuItem.Name = "manualToolStripMenuItem";
-            this.manualToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manualToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
             this.manualToolStripMenuItem.Text = "Manual...";
             this.manualToolStripMenuItem.Click += new System.EventHandler(this.manualToolStripMenuItem_Click);
+            // 
+            // gitHubURLToolStripMenuItem
+            // 
+            this.gitHubURLToolStripMenuItem.Name = "gitHubURLToolStripMenuItem";
+            this.gitHubURLToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.gitHubURLToolStripMenuItem.Text = "GitHub URL...";
+            this.gitHubURLToolStripMenuItem.Click += new System.EventHandler(this.gitHubURLToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(145, 22);
             this.aboutToolStripMenuItem1.Text = "About...";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
@@ -475,6 +482,58 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label8.Size = new System.Drawing.Size(48, 13);
             this.label8.TabIndex = 4;
             this.label8.Text = "Gender: ";
+            // 
+            // checkBox_ShowMannequin
+            // 
+            this.checkBox_ShowMannequin.AutoSize = true;
+            this.checkBox_ShowMannequin.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox_ShowMannequin.Checked = true;
+            this.checkBox_ShowMannequin.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_ShowMannequin.Location = new System.Drawing.Point(3, 64);
+            this.checkBox_ShowMannequin.Name = "checkBox_ShowMannequin";
+            this.checkBox_ShowMannequin.Size = new System.Drawing.Size(109, 17);
+            this.checkBox_ShowMannequin.TabIndex = 6;
+            this.checkBox_ShowMannequin.Text = "Show Mannequin";
+            this.checkBox_ShowMannequin.UseVisualStyleBackColor = true;
+            this.checkBox_ShowMannequin.CheckedChanged += new System.EventHandler(this.checkBox_ShowMannequin_CheckedChanged);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.flowLayoutPanel9);
+            this.panel1.Location = new System.Drawing.Point(3, 87);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(246, 43);
+            this.panel1.TabIndex = 7;
+            // 
+            // flowLayoutPanel9
+            // 
+            this.flowLayoutPanel9.Controls.Add(this.label9);
+            this.flowLayoutPanel9.Controls.Add(this.pictureBox1);
+            this.flowLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel9.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel9.Name = "flowLayoutPanel9";
+            this.flowLayoutPanel9.Size = new System.Drawing.Size(246, 43);
+            this.flowLayoutPanel9.TabIndex = 0;
+            // 
+            // label9
+            // 
+            this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(3, 15);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(98, 13);
+            this.label9.TabIndex = 0;
+            this.label9.Text = "Background Color: ";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(107, 3);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(37, 37);
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // flowLayoutPanel4
             // 
@@ -762,68 +821,9 @@ namespace Starbound_ColorOptions_EasyPicker
             this.button_ColorTransition_Add.UseVisualStyleBackColor = true;
             this.button_ColorTransition_Add.Click += new System.EventHandler(this.button_ColorTransition_Add_Click);
             // 
-            // checkBox_ShowMannequin
-            // 
-            this.checkBox_ShowMannequin.AutoSize = true;
-            this.checkBox_ShowMannequin.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox_ShowMannequin.Checked = true;
-            this.checkBox_ShowMannequin.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_ShowMannequin.Location = new System.Drawing.Point(3, 64);
-            this.checkBox_ShowMannequin.Name = "checkBox_ShowMannequin";
-            this.checkBox_ShowMannequin.Size = new System.Drawing.Size(109, 17);
-            this.checkBox_ShowMannequin.TabIndex = 6;
-            this.checkBox_ShowMannequin.Text = "Show Mannequin";
-            this.checkBox_ShowMannequin.UseVisualStyleBackColor = true;
-            this.checkBox_ShowMannequin.CheckedChanged += new System.EventHandler(this.checkBox_ShowMannequin_CheckedChanged);
-            // 
-            // gitHubURLToolStripMenuItem
-            // 
-            this.gitHubURLToolStripMenuItem.Name = "gitHubURLToolStripMenuItem";
-            this.gitHubURLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.gitHubURLToolStripMenuItem.Text = "GitHub URL...";
-            this.gitHubURLToolStripMenuItem.Click += new System.EventHandler(this.gitHubURLToolStripMenuItem_Click);
-            // 
             // colorDialog1
             // 
             this.colorDialog1.AnyColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.flowLayoutPanel9);
-            this.panel1.Location = new System.Drawing.Point(3, 87);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(246, 43);
-            this.panel1.TabIndex = 7;
-            // 
-            // flowLayoutPanel9
-            // 
-            this.flowLayoutPanel9.Controls.Add(this.label9);
-            this.flowLayoutPanel9.Controls.Add(this.pictureBox1);
-            this.flowLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel9.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel9.Name = "flowLayoutPanel9";
-            this.flowLayoutPanel9.Size = new System.Drawing.Size(246, 43);
-            this.flowLayoutPanel9.TabIndex = 0;
-            // 
-            // label9
-            // 
-            this.label9.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(3, 15);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(98, 13);
-            this.label9.TabIndex = 0;
-            this.label9.Text = "Background Color: ";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(107, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(37, 37);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // MainForm
             // 
@@ -867,6 +867,10 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel3.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.flowLayoutPanel9.ResumeLayout(false);
+            this.flowLayoutPanel9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.flowLayoutPanel4.ResumeLayout(false);
             this.flowLayoutPanel4.PerformLayout();
             this.splitContainer5.Panel1.ResumeLayout(false);
@@ -888,10 +892,6 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel6.ResumeLayout(false);
             this.flowLayoutPanel8.ResumeLayout(false);
             this.flowLayoutPanel8.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.flowLayoutPanel9.ResumeLayout(false);
-            this.flowLayoutPanel9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

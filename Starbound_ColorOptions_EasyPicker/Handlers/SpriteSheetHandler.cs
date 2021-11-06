@@ -35,20 +35,25 @@ namespace Starbound_ColorOptions_EasyPicker
             "Swim"
         };
 
-        private Dictionary<string, Bitmap> _originalSpriteBitmaps = new Dictionary<string, Bitmap>()
+        private Dictionary<string, Bitmap> _originalSpriteBitmaps = new Dictionary<string, Bitmap>();
+
+        public Dictionary<string, Bitmap> HumanParts = new Dictionary<string, Bitmap>();
+        public Dictionary<string, Bitmap> ArmorParts = new Dictionary<string, Bitmap>();
+
+
+        public void Clear()
         {
-            [SpriteParts[0]] = null,
-            [SpriteParts[1]] = null,
-            [SpriteParts[2]] = null,
-            [SpriteParts[3]] = null,
-            [SpriteParts[4]] = null,
-            [SpriteParts[5]] = null,
-            [SpriteParts[6]] = null
-        };
+            _originalSpriteBitmaps.Clear();
+            ArmorParts.Clear();
+            HumanParts.Clear();
+        }
 
-        public List<string> ActiveSpriteParts = new List<string>();
+        public void Add(string spritePart, Bitmap spriteBitmap)
+        {
+            _originalSpriteBitmaps.Add(spritePart, spriteBitmap);
+        }
 
-
+        public int Count { get { return _originalSpriteBitmaps.Count; } }
 
         public Bitmap GetSpriteBitmap(string spritePart)
         {
@@ -59,30 +64,29 @@ namespace Starbound_ColorOptions_EasyPicker
             return result;
         }
 
-        public bool TrySetSpriteBitmap(string spritePart, Bitmap bitmap)
+        //public bool TrySetSpriteBitmap(string spritePart, Bitmap bitmap)
+        //{
+        //    if(_originalSpriteBitmaps.ContainsKey(spritePart))
+        //    {
+        //        if(_originalSpriteBitmaps[spritePart] != null)
+        //            _originalSpriteBitmaps[spritePart].Dispose();
+
+        //        _originalSpriteBitmaps[spritePart] = bitmap;
+
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
+
+        public void GetAllSpritePartsForCurrentFrame(string pose, int frame, Rules.Sex sex)
         {
-            if(_originalSpriteBitmaps.ContainsKey(spritePart))
-            {
-                if(_originalSpriteBitmaps[spritePart] != null)
-                    _originalSpriteBitmaps[spritePart].Dispose();
-
-                _originalSpriteBitmaps[spritePart] = bitmap;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public Bitmap GetMergedOriginalBitmap(string pose, int frame, Rules.Sex sex)
-        {
-            List<Bitmap> bitmaps = new List<Bitmap>();
+            HumanParts = new Dictionary<string, Bitmap>();
+            ArmorParts = new Dictionary<string, Bitmap>();
 
             foreach (string spritePart in SpriteSheetHandler.SpriteParts)
             {
                 bool ignore = (spritePart == "chestm" && sex == Rules.Sex.Female) || (spritePart == "chestf" && sex == Rules.Sex.Male);
-
-                //Rectangle rectangle = RulesProcessing.GetFrameRect(spritePart, pose, frame);
 
                 if (ShowMannequin && !ignore)
                 {
@@ -117,26 +121,34 @@ namespace Starbound_ColorOptions_EasyPicker
                         System.Drawing.Imaging.PixelFormat format = humanPart.PixelFormat;
 
                         Bitmap bPart = humanPart.Clone(rectangle, format);
-                        bitmaps.Add(bPart);
+                        HumanParts.Add(spritePart, bPart);
                     }
                 }
 
-                if (!ignore && ActiveSpriteParts.Contains(spritePart))
+                if (!ignore)
                 {
-                    Rectangle rectangle = RulesProcessing.GetFrameRect(spritePart, pose, frame);
+                    if(_originalSpriteBitmaps.ContainsKey(spritePart))
+                    {
+                        if(_originalSpriteBitmaps.ContainsKey(spritePart) && _originalSpriteBitmaps[spritePart] != null)
+                        {
+                            Rectangle rectangle = RulesProcessing.GetFrameRect(spritePart, pose, frame);
 
-                    System.Drawing.Imaging.PixelFormat format = this.GetSpriteBitmap(spritePart).PixelFormat;
+                            System.Drawing.Imaging.PixelFormat format = this.GetSpriteBitmap(spritePart).PixelFormat;
 
-                    // Clone a portion of the Bitmap object.
-                    Bitmap bPart = this.GetSpriteBitmap(spritePart).Clone(rectangle, format);
+                            // Clone a portion of the Bitmap object.
+                            Bitmap bPart = this.GetSpriteBitmap(spritePart).Clone(rectangle, format);
 
-                    bitmaps.Add(bPart);
+                            ArmorParts.Add(spritePart, bPart);
+                        }
+                    }
                 }
             }
 
-            Bitmap result = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
+        }
 
-            return result;
+        public static Bitmap GetEmptyFrame()
+        {
+            return new Bitmap(Rules.BitmapSizeDefault, Rules.BitmapSizeDefault);
         }
     }
 }

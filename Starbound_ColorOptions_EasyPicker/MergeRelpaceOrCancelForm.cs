@@ -19,6 +19,12 @@ namespace Starbound_ColorOptions_EasyPicker
             button_Merge.DialogResult = DialogResult.Yes;
             button_Replace.DialogResult = DialogResult.No;
             button_Cancel.DialogResult = DialogResult.Cancel;
+
+            // Get the bitmap.
+            Bitmap bm = new Bitmap(Properties.Resources.options_icon);
+
+            // Convert to an icon and use for the form's icon.
+            this.Icon = Icon.FromHandle(bm.GetHicon());
         }
 
         private void button_Merge_Click(object sender, EventArgs e)

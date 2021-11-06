@@ -35,6 +35,8 @@ namespace Starbound_ColorOptions_EasyPicker
             {
                 if(_items.Contains(item))
                 {
+                    item.SubItems[2].BackColor = Color.Transparent;
+                    item.SubItems[2].Text = string.Empty;
                     _items.Remove(item);
                     atLeastOneRemoved = true;
                 }
@@ -254,6 +256,8 @@ namespace Starbound_ColorOptions_EasyPicker
             foreach(ListViewItem item in items)
             {
                 colors.Add(item.SubItems[3].BackColor);
+                item.SubItems[2].BackColor = Color.FromArgb(255, 212, 127);
+                item.SubItems[2].Text = "E";
             }
             _originalColors = colors.ToArray();
 
@@ -280,6 +284,12 @@ namespace Starbound_ColorOptions_EasyPicker
 
             OnRGBTrackBarChanged();
             DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(colors[0]), _selectPointCircleRadius);
+
+            // Get the bitmap.
+            Bitmap bm = new Bitmap(Properties.Resources.options_icon);
+
+            // Convert to an icon and use for the form's icon.
+            this.Icon = Icon.FromHandle(bm.GetHicon());
         }
 
         private void pictureBox_ColorCircle_Click(object sender, EventArgs e)
@@ -377,13 +387,16 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     _items[i].SubItems[3].BackColor = _originalColors[i];
                     _items[i].SubItems[4].Text = ColorProcessing.HexConverter(_originalColors[i]);
+                    AsyncRemoveMarker(Color.Red);
                 }
             }
             else
             {
                 for (int i = 0; i < _items.Count; i++)
                 {
-                    if(_items[i].SubItems[3].BackColor != _originalColors[i])
+                    AsyncRemoveMarker(Color.LightGreen);
+
+                    if (_items[i].SubItems[3].BackColor != _originalColors[i])
                     {
                         _parent.OnChangeDone();
                     }
@@ -505,6 +518,27 @@ namespace Starbound_ColorOptions_EasyPicker
 
             this.Left = (_parent.Right + this.Width > rightmost.WorkingArea.Right ? (_parent.Left - this.Width < 0 ? _parent.Left + _parent.Width : _parent.Left - this.Width) : _parent.Left + _parent.Width);
             this.Top = _parent.Top;
+        }
+
+        private async void AsyncRemoveMarker(Color c)
+        {
+            List<ListViewItem> listViewItems = _items;
+
+            foreach(ListViewItem item in listViewItems)
+            {
+                item.SubItems[2].BackColor = c;
+                item.SubItems[2].Text = string.Empty;
+            }
+
+            await Task.Delay(100);
+
+            foreach (ListViewItem item in listViewItems)
+            {
+                if(item.SubItems[2].BackColor == c)
+                {
+                    item.SubItems[2].BackColor = Color.Transparent;
+                }
+            }
         }
     }
 }

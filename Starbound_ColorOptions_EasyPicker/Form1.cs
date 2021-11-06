@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,10 +21,11 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private string _lastDirectory = String.Empty;
         private bool _dontDraw;
-        private bool _remindToSaveFlag = false;
+        public bool RemindToSaveFlag = false;
 
         private SpriteSheetHandler _spriteSheetHandler = new SpriteSheetHandler();
         private ColorTransitionHandler _colorTransitionHandler = new ColorTransitionHandler();
+
 
         public MainForm()
         {
@@ -40,11 +43,12 @@ namespace Starbound_ColorOptions_EasyPicker
 
             AsyncUpdate();
 
+            AsyncUpdateColoredImage();
         }
 
         public void OnChangeDone()
         {
-            _remindToSaveFlag = true;
+            RemindToSaveFlag = true;
         }
 
         private void InitializeMiscellaneous()
@@ -52,6 +56,12 @@ namespace Starbound_ColorOptions_EasyPicker
             this.Text = AppPreferences.ApplicationName;
 
             pictureBox1.BackColor = pictureBox_OriginalSprite.BackColor;
+
+            // Get the bitmap.
+            Bitmap bm = new Bitmap(Properties.Resources.icon);
+
+            // Convert to an icon and use for the form's icon.
+            this.Icon = Icon.FromHandle(bm.GetHicon());
         }
 
         private void InitializePictureBox()
@@ -194,24 +204,6 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 listView_OriginalSpriteColors.Items.Add(listViewItem);
             }
-
-            //Bitmap b = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
-
-            //listView_OriginalSpriteColors.Items.Clear();
-
-            //Color[] colors = BitmapProcessing.GetAllColorsFromBitmaps(b);
-            ////colors = BitmapProcessing.SortColorsByValue(colors);
-
-            //for(int i = 0; i < colors.Length; i++)
-            //{
-            //    string[] row = { string.Empty, ColorProcessing.HexConverter(colors[i]) };
-
-            //    ListViewItem listViewItem = new ListViewItem(row);
-            //    listViewItem.UseItemStyleForSubItems = false;
-            //    listViewItem.SubItems[0].BackColor = colors[i];
-
-            //    listView_OriginalSpriteColors.Items.Add(listViewItem);
-            //}
         }
 
         private void OpenColorTransitionEditor(params ListViewItem[] items)
@@ -253,32 +245,109 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             if (!String.IsNullOrWhiteSpace(_lastDirectory) && !_dontDraw)
             {
-                Bitmap result = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
-                result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_OriginalSprite.Size);
+                _spriteSheetHandler.GetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+
+                List<Bitmap> bitmaps = new List<Bitmap>();
+                bitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+                foreach(string spritePart in SpriteSheetHandler.SpriteParts)
+                {
+                    if(spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                    {
+                        continue;
+                    }
+
+                    if(_spriteSheetHandler.HumanParts.TryGetValue(spritePart, out Bitmap bH))
+                    {
+                        if (bH != null)
+                        {
+                            bitmaps.Add(bH);
+                        }
+                    }
+
+                    if(_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
+                    {
+                        if(bA != null)
+                        {
+                            bitmaps.Add(bA);
+                        }
+                    }
+                }
+
+                Bitmap imageBitmap = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
+
+                imageBitmap = BitmapProcessing.GetInterpolatedBitmap(imageBitmap, this.pictureBox_OriginalSprite.Size);
 
                 // Display the result.
-                this.pictureBox_OriginalSprite.Image = result;
-
-                //AddOriginalColors(); // !!!
+                this.pictureBox_OriginalSprite.Image = imageBitmap;
             }
         }
         
         private void UpdateColoredSprite()
         {
-            Bitmap result = _spriteSheetHandler.GetMergedOriginalBitmap((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
-            for(int i = 0; i < result.Width; i++)
+            _spriteSheetHandler.GetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+
+            List<Bitmap> mannequinBitmaps = new List<Bitmap>();
+            mannequinBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+
+
+            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
             {
-                for (int j = 0; j < result.Height; j++)
+                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
                 {
-                    foreach(ListViewItem item in listView_ColorTransition.Items)
+                    continue;
+                }
+
+                if (_spriteSheetHandler.HumanParts.TryGetValue(spritePart, out Bitmap bH))
+                {
+                    if (bH != null)
                     {
-                        if(result.GetPixel(i, j) == item.SubItems[0].BackColor)
-                        {
-                            result.SetPixel(i, j, item.SubItems[3].BackColor);
-                        }
+                        mannequinBitmaps.Add(bH);
                     }
                 }
             }
+
+            List<Bitmap> spriteBitmaps = new List<Bitmap>();
+            spriteBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
+            {
+                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                {
+                    continue;
+                }
+
+                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap b))
+                {
+                    if (b != null)
+                    {
+                        spriteBitmaps.Add(b);
+                    }
+                }
+            }
+
+            Bitmap mergedMannequinBitmap = BitmapProcessing.GetMergedBitmaps(mannequinBitmaps.ToArray());
+
+            Bitmap mergedSpriteBitmap = BitmapProcessing.GetMergedBitmaps(spriteBitmaps.ToArray());
+
+            using (Graphics g = Graphics.FromImage(mergedSpriteBitmap))
+            {
+                foreach (ListViewItem item in listView_ColorTransition.Items)
+                {
+                    // Set the image attribute's color mappings
+                    ColorMap[] colorMap = new ColorMap[1];
+                    colorMap[0] = new ColorMap();
+                    colorMap[0].OldColor = item.SubItems[0].BackColor;
+                    colorMap[0].NewColor = item.SubItems[3].BackColor;
+
+                    ImageAttributes attr = new ImageAttributes();
+                    attr.SetRemapTable(colorMap);
+
+                    // Draw using the color map
+                    Rectangle rect = new Rectangle(0, 0, mergedSpriteBitmap.Width, mergedSpriteBitmap.Height);
+                    g.DrawImage(mergedSpriteBitmap, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
+                }
+            }
+
+            Bitmap result = BitmapProcessing.GetMergedBitmaps(mergedMannequinBitmap, mergedSpriteBitmap);
 
             result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_ColoredSprite.Size);
 
@@ -295,21 +364,29 @@ namespace Starbound_ColorOptions_EasyPicker
                 button_ColorTransition_Edit.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
                 button_ColorTransition_EditHSV.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
                 button_ColorTransition_Remove.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
+                
+                await Task.Delay(100);
+            }
+        }
 
-                if(_spriteSheetHandler.ActiveSpriteParts.Count > 0)
+        private async void AsyncUpdateColoredImage()
+        {
+            while (true)
+            {
+                if (_spriteSheetHandler.Count > 0)
                 {
                     try
                     {
                         UpdateColoredSprite();
                     }
-                    catch(Exception e) { /* Ignore */ }
+                    catch (Exception e) { /* Ignore */ }
                 }
-                else if(pictureBox_ColoredSprite.Image != null)
+                else if (pictureBox_ColoredSprite.Image != null)
                 {
                     pictureBox_ColoredSprite.Image = null;
                 }
 
-                await Task.Delay(100);
+                await Task.Delay(5);
             }
         }
 
@@ -340,29 +417,31 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     string folderPath = Path.GetDirectoryName(openFileDialog.FileName);
 
-                    string[] files = Directory.GetFiles(folderPath);
+                    //string[] files = Directory.GetFiles(folderPath);
+                    DirectoryInfo dir = new DirectoryInfo(folderPath);
+                    FileInfo[] files = dir.GetFiles();
 
                     //System.Windows.Forms.MessageBox.Show("Files found: " + files.Length.ToString(), "Message");
+                    _spriteSheetHandler.Clear();
 
                     bool foundAtLeastOneFile = false;
 
-                    _spriteSheetHandler.ActiveSpriteParts.Clear();
-                    foreach (string spritePart in SpriteSheetHandler.SpriteParts)
+                    foreach(FileInfo file in files)
                     {
-                        string fullPath = folderPath + @"\" + spritePart + ".png";
-
-                        if (files.Contains(fullPath))
+                        foreach (string spritePart in SpriteSheetHandler.SpriteParts)
                         {
-                            foundAtLeastOneFile = true;
+                            if(file.Name.ToLower() == (spritePart + ".png").ToLower())
+                            {
+                                foundAtLeastOneFile = true;
 
-                            Bitmap b = new Bitmap(folderPath + @"\" + spritePart + ".png");
+                                Bitmap b = new Bitmap(file.FullName);
 
-                            _spriteSheetHandler.TrySetSpriteBitmap(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
-
-                            b.Dispose();
-                            _spriteSheetHandler.ActiveSpriteParts.Add(spritePart);
+                                _spriteSheetHandler.Add(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
+                                b.Dispose();
+                            }
                         }
                     }
+
 
                     if (foundAtLeastOneFile)
                     {
@@ -537,7 +616,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_remindToSaveFlag)
+            if (RemindToSaveFlag)
             {
                 switch (MessageBox.Show("You have unsaved changes. Would you like to save the changes?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3))
                 {
@@ -556,7 +635,7 @@ namespace Starbound_ColorOptions_EasyPicker
                         switch (saveFileDialog1.ShowDialog())
                         {
                             case DialogResult.OK:
-                                _remindToSaveFlag = false;
+                                RemindToSaveFlag = false;
                                 
                                 if ((myStream = saveFileDialog1.OpenFile()) != null)
                                 {
@@ -573,7 +652,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
                         break;
                     case DialogResult.No:
-                        _remindToSaveFlag = false;
+                        RemindToSaveFlag = false;
 
                         break;
                     default:
@@ -582,7 +661,7 @@ namespace Starbound_ColorOptions_EasyPicker
             }
 
             _colorTransitionHandler.Clear();
-            _spriteSheetHandler.ActiveSpriteParts.Clear();
+            _spriteSheetHandler.Clear();
 
             this.listView_OriginalSpriteColors.Items.Clear();
             this.listView_ColorTransition.Items.Clear();
@@ -800,13 +879,37 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void pictureBox_OriginalSprite_Click(object sender, EventArgs e)
         {
-            Bitmap b = (Bitmap)pictureBox_OriginalSprite.Image;
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
+            {
+                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                {
+                    continue;
+                }
+
+                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
+                {
+                    if (bA != null)
+                    {
+                        bitmaps.Add(bA);
+                    }
+                }
+            }
+
+
+            Bitmap b = BitmapProcessing.GetInterpolatedBitmap(BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray()), pictureBox_OriginalSprite.Size);
+            //Bitmap b = (Bitmap)pictureBox_OriginalSprite.Image;
 
             if (b == null) return;
 
             Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
 
+            if (b.Width < mousePosRelativeToControl.X || b.Height < mousePosRelativeToControl.Y
+                || mousePosRelativeToControl.X < 0 || mousePosRelativeToControl.Y < 0)
+                return;
+
             Color c = b.GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
+            //Color c = b.GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
 
             if(c.A > 0)
             {
@@ -828,7 +931,25 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void pictureBox_ColoredSprite_Click(object sender, EventArgs e)
         {
-            Bitmap b = (Bitmap)pictureBox_ColoredSprite.Image;
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
+            {
+                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                {
+                    continue;
+                }
+
+                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
+                {
+                    if (bA != null)
+                    {
+                        bitmaps.Add(bA);
+                    }
+                }
+            }
+
+
+            Bitmap b = BitmapProcessing.GetInterpolatedBitmap(BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray()), pictureBox_OriginalSprite.Size);
 
             if (b == null) return;
 
@@ -875,7 +996,12 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!_remindToSaveFlag) return;
+            if (File.Exists("tempHtmlDocumentationFile_SBCOP.html"))
+            {
+                File.Delete("tempHtmlDocumentationFile_SBCOP.html");
+            }
+
+            if (!RemindToSaveFlag) return;
 
             switch (MessageBox.Show("You have unsaved changes. Would you like to save the changes?", "Unsaved Changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button3))
             {
@@ -969,18 +1095,18 @@ namespace Starbound_ColorOptions_EasyPicker
         private void manualToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string html = "<!doctype html><html lang='en'> <head> <meta charset='utf - 8'> <title>D. Sorochinsky - HTML 1.PW - Battlestar Galactica</title> <meta name='description' content='Small HTML doc'> <meta name='viewport' content='width = device - width, initial - scale = 1'> <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap'> </head><style>* { box-sizing: border-box;}html { font-family: -applesystem, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sansserif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; color: #212121; line-height: 1.5;}body { margin: 0; background-image: url('https://wallpaperbat.com/img/225446-minimalist-space-wallpaper-top-free-minimalist-space.png'); background-repeat: no-repeat; background-attachment: fixed; background-size: cover;}h1, h2, h3 { font-family: 'Roboto', cursive; padding: 1rem;}header { background-color: rgb(72, 100, 100); padding: 4rem 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}nav { background-color: rgb(45, 65, 151); padding: 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}footer { background-color: rgb(0, 0, 0); padding: 4rem 1rem; margin-top: 4rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}header p, footer p { margin: 0;}nav ul { margin: 0; padding: 0;}nav ul li { list-style-type: none; display: inline-block;}nav ul li::after { content: ' § ';}nav ul li:last-child::after { content: '';}nav ul li a { color:rgb(255, 190, 50);text-decoration:none}main { padding: 0 1rem;}main p { text-align: justify; padding: 1rem;}.related-panel h3 { text-align: center;}.related-panel img { display: block; margin-left: auto; margin-right: auto; max-width: 100%;}figure { display: block; width: 100%; margin: 0; position: relative;}figure img { display: block; width: 100%;}figure figcaption { position: absolute; left: 0; bottom: 0; display: block; width: 100%; padding: 0.5rem 1rem; background-color: rgba(0, 0, 0, 0.3); color: white; font-family: 'Roboto', cursive;}@media screen and (min-width: 992px) { html { font-size: 16px; } main { padding: 0; } .container { display: block; width: 992px; margin-left: auto; margin-right: auto; } .container_body { display: block; width: 992px; margin-left: auto; margin-right: auto; background-color: rgba(203, 213, 218, 0.98); border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596); } } .columns-2 { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: stretch;}.columns-2 article { flex: 2; margin-right: 0.5rem;}.columns-2 aside { flex: 1; margin-left: 0.5rem;}.related-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 1rem; row-gap: 1rem;}.related-panel { padding: 1rem;}table.modern { /* platums */ width: 100%; /* likvidē atstarpi starp šūnām */ border-collapse: collapse; /* tabulas ārējais rāmis */ border: 1px solid #01579B;}/* tabulas galvenes šūnas */table.modern th { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* fona krāsa */ background-color: #01579B; /* teksta krāsa */ color: #FFFFFF; /* teksta līdzināšana */ text-align: left;}/* tabulas datu šūnas */table.modern td { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* teksta krāsa */ color: #212121;}/* hipersaites tabulas datu šūnās */table.modern td a { /* teksta krāsa */ color: #2d8f70; /* teksta biezums */ font-weight: bold;}/* tabulas rindu 'zebras' krāsojums *//* selektors 'tr:nth-child(even)' atlasa katru otro tabulas rindu */table.modern tr:nth-child(even) td { /* fona krāsa */ background-color: #E1F5FE;}/* tabulas rindu izcēluma (hover) krāsojums *//* selektors 'tr:hover' darbojas tikai tad, kad kursors atrodas virs tabulas rindas */table.modern tr:hover td { /* fona krāsa */ background-color: #B3E5FC;}</style> <body> <!-- galvene --> <header class='container'> <p>1. Practical Work</p> </header> <!-- navigācijas bloks --> <nav class='container'> <ul> <li> <a href='https://en.wikipedia.org/wiki/Battlestar_Galactica' target='_blank'>Wikipedia</a> </li> <li> <a href='https://galactica.fandom.com/wiki/Battlestar_Galactica_Wiki' target='_blank'>Wiki Fandom</a> </li> <li> <a href='https://www.google.com/search?q=battlestar+galactica&sxsrf=AOaemvL-CzyGr_JFWwqgs7JhPbyGDQ9M2A%3A1634932835705&source=hp&ei=YxhzYfzNKKOorgT6opf4AQ&iflsig=ALs-wAMAAAAAYXMmcySlm3TBLgFwXj6TIdHPTVxg_rZ0&oq=battlestar+galactica&gs_lcp=Cgdnd3Mtd2l6EAMYADIECCMQJzIECCMQJzIECCMQJzIFCC4QywEyBQgAEIAEMgUILhCABDIFCC4QgAQyBQgAEIAEMgUILhCABDIFCAAQgAQ6BAgAEEM6BQgAEJECOgoIABCABBCHAhAUOgQILhBDOgoILhDHARDRAxBDOgsILhCABBDHARDRAzoFCAAQywFQnwJY0hBgshpoAHAAeACAAYkBiAHxCZIBBDEzLjKYAQCgAQE&sclient=gws-wiz' target='_blank'>Google Search</a> </li> <li> <a href='https://git-scm.com/' target='_blank'>Git</a> </li> </ul> </nav> <!-- saturs --> <main class='container_body'> <div class='columns-2'> <article> <h1>Battlestar Galactica</h1> <figure> <img src='https://www.kotaku.com.au/content/uploads/sites/3/2017/08/02/lekiwrpl78nqsmih8j8a.jpg' alt='Battlestar_Galactica_Logo'> <figcaption>Battlestar Galactica</figcaption> </figure> <p><em>Battlestar Galactica</em> (BSG) is an American military science fiction television series, and part of the Battlestar Galactica franchise.</p> <p>A group of humans aboard a battleship, Battlestar Galactica, are forced to abandon their planet after being attacked by Cylons. They try to evade the Cylons while searching for their true home, Earth.</p> </article> <aside> <h2>Characters</h2> <table class='modern'> <tr> <th>Full Name</th> <th>Homeworld</th> </tr> <tr> <td>&ensp;William 'Bill' Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Leland Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Gaius Baltar</td> <td>&ensp;Aerilon</td> </tr> <tr> <td>&ensp;Kara Thrace</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Laura Roslin</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Helena Cain</td> <td>&ensp;Tauron</td> </tr> <tr> <td>&ensp;Sharon Valerii</td> <td>&ensp;The Colony</td> </tr> </table> </aside> </div> <section> <h2>Main characters</h2> <div class='related-grid'> <section class='related-panel'> <h3>William 'Bill' Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/c/ce/William_Adama_headshot.jpg/revision/latest/scale-to-width-down/338?cb=20100326215247' alt='William'> <p>Admiral William Adama was an officer in the Colonial Fleet. Born to a Caprican family of Tauron heritage, Adama was conscripted into military service during the Cylon War, in which he served as a Raptor and Viper pilot under the callsign 'Husker'.</p> </section> <section class='related-panel'> <h3>Leland Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/37/LeeAdama.jpg/revision/latest/scale-to-width-down/350?cb=20090601114012' alt='Leland'> <p>Leland Joseph Adama, commonly referred to as just 'Lee' or by his call sign of 'Apollo', is a former Colonial Fleet Reserve officer who became the Caprican delegate to the Quorum of Twelve, then later the interim President of the Twelve Colonies of Kobol. He is the sole surviving son of William Adama.</p> </section> <section class='related-panel'> <h3>Gaius Baltar</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/3b/BaltarSeason4.png/revision/latest/scale-to-width-down/350?cb=20180805033032' alt='Gaius'> <p>Dr. Gaius Baltar was an accomplished computer scientist of Aerelonean descent. Shunning his farming background, Baltar became a celebrity figure with political connections, which enabled a successful push for the re-introduction of software networking in military vessels in the aftermath of the Cylon War.</p> </section> <section class='related-panel'> <h3>Laura Roslin</h3> <img src='https://static.wikia.nocookie.net/galactica/images/2/27/LauraRoslinS4.jpg/revision/latest/scale-to-width-down/350?cb=20180805034141' alt='Laura'> <p>Laura Roslin was the President of the United Colonies of Kobol, having served as Secretary of Education under President Richard Adar, and sworn into office as the highest ranked government official who survived the Fall of the Twelve Colonies. Roslin subsequently became the political leader of the remnants of the Colonial fleet, along with Commander William Adama.</p> </section> <section class='related-panel'> <h3>Kara Thrace</h3> <img src='https://static.wikia.nocookie.net/galactica/images/5/55/Kara_Thrace.jpg/revision/latest/scale-to-width-down/350?cb=20090601070409' alt='Kara'> <p>Kara 'Starbuck' Thrace was a Viper pilot in the Colonial Fleet. She is a gifted Viper pilot, with an attitude that at times thwarts her career advancement.</p> </section> </div> </section> </main> <!-- kājene --> <footer> <p class='container'>Devid Sorochinsky, VeA, 2021</p> </footer> </body></html>";
-            File.WriteAllText("tempHtml.html", html);
+            File.WriteAllText("tempHtmlDocumentationFile_SBCOP.html", html);
 
             //System.Diagnostics.Process.Start("http:");
 
-            System.Diagnostics.Process.Start("tempHtml.html");
+            System.Diagnostics.Process.Start("tempHtmlDocumentationFile_SBCOP.html");
 
-            Thread.Sleep(1000);
+            Thread.Sleep(10000);
             //System.Diagnostics.Process.Start("about:Blank", html);
 
-            if(File.Exists("tempHtml.html"))
+            if(File.Exists("tempHtmlDocumentationFile_SBCOP.html"))
             {
-                File.Delete("tempHtml.html");
+                File.Delete("tempHtmlDocumentationFile_SBCOP.html");
             }
         }
 

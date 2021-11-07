@@ -704,9 +704,9 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(3, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(80, 13);
+            this.label6.Size = new System.Drawing.Size(85, 13);
             this.label6.TabIndex = 2;
-            this.label6.Text = "Color Transition";
+            this.label6.Text = "Color Transitions";
             // 
             // listView_ColorTransition
             // 

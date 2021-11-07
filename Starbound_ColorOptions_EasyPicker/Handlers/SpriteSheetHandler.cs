@@ -16,12 +16,13 @@ namespace Starbound_ColorOptions_EasyPicker
 
         public static readonly string[] SpriteParts =
         {
-            "Bsleeve",
             "back",
+            "Bsleeve",
             "pants",
             "head",
             "chestm",
             "chestf",
+            "chest",
             "Fsleeve"
         };
 
@@ -35,6 +36,7 @@ namespace Starbound_ColorOptions_EasyPicker
             "Swim"
         };
 
+        public static Dictionary<string, Bitmap> MannequinParts = new Dictionary<string, Bitmap>();
         private Dictionary<string, Bitmap> _originalSpriteBitmaps = new Dictionary<string, Bitmap>();
 
         public Dictionary<string, Bitmap> HumanParts = new Dictionary<string, Bitmap>();
@@ -43,14 +45,136 @@ namespace Starbound_ColorOptions_EasyPicker
 
         public void Clear()
         {
+            foreach(Bitmap bO in _originalSpriteBitmaps.Values)
+            {
+                bO.Dispose();
+            }
             _originalSpriteBitmaps.Clear();
+
+            foreach (Bitmap bA in ArmorParts.Values)
+            {
+                bA.Dispose();
+            }
             ArmorParts.Clear();
+
+            foreach (Bitmap bH in HumanParts.Values)
+            {
+                bH.Dispose();
+            }
             HumanParts.Clear();
+
+            foreach (Bitmap bM in MannequinParts.Values)
+            {
+                bM.Dispose();
+            }
+            MannequinParts.Clear();
         }
 
-        public void Add(string spritePart, Bitmap spriteBitmap)
+        public void Add(string spritePart, Bitmap spriteBitmap = null, Bitmap mask = null)
         {
-            _originalSpriteBitmaps.Add(spritePart, spriteBitmap);
+            switch (spritePart)
+            {
+                case "Bsleeve":
+                    MannequinParts.Add("Bsleeve", Properties.Resources.human_Bsleeve);
+                    break;
+                case "pants":
+                    MannequinParts.Add("pants", Properties.Resources.human_pants);
+                    break;
+                case "head":
+                    MannequinParts.Add("head", Properties.Resources.human_head);
+                    break;
+                case "chestm":
+                    MannequinParts.Add("chestm", Properties.Resources.human_chestm);
+                    break;
+                case "chestf":
+                    MannequinParts.Add("chestf", Properties.Resources.human_chestf);
+                    break;
+                case "chest":
+                    MannequinParts.Add("chestm", Properties.Resources.human_chestm);
+                    MannequinParts.Add("chestf", Properties.Resources.human_chestf);
+                    break;
+                case "Fsleeve":
+                    MannequinParts.Add("Fsleeve", Properties.Resources.human_Fsleeve);
+                    break;
+            }
+
+            try
+            {
+                if (mask != null && spritePart == "chest" && MannequinParts.ContainsKey("chestm") && mask.Width == Rules.BitmapSizeDefault && mask.Height == Rules.BitmapSizeDefault)
+                {
+                    foreach (string pose in SpriteSheetHandler.SpriteAnimations)
+                    {
+                        foreach (Point p in Rules.PosesNCoordinates[spritePart][pose])
+                        {
+                            Point offset = new Point(p.X * Rules.BitmapSizeDefault, p.Y * Rules.BitmapSizeDefault);
+
+                            for (int i = 0; i < mask.Width; i++)
+                            {
+                                for (int j = 0; j < mask.Height; j++)
+                                {
+                                    if (mask.GetPixel(i, j).A == 0)
+                                    {
+                                        //Console.WriteLine("Setting");
+                                        MannequinParts["chestm"].SetPixel(offset.X + i, offset.Y + j, Color.Transparent);
+                                        MannequinParts["chestf"].SetPixel(offset.X + i, offset.Y + j, Color.Transparent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (mask != null && MannequinParts.ContainsKey(spritePart) && mask.Width == Rules.BitmapSizeDefault && mask.Height == Rules.BitmapSizeDefault)
+                {
+                    foreach (string pose in SpriteSheetHandler.SpriteAnimations)
+                    {
+                        foreach (Point p in Rules.PosesNCoordinates[spritePart][pose])
+                        {
+                            Point offset = new Point(p.X * Rules.BitmapSizeDefault, p.Y * Rules.BitmapSizeDefault);
+
+                            for (int i = 0; i < mask.Width; i++)
+                            {
+                                for (int j = 0; j < mask.Height; j++)
+                                {
+                                    if (mask.GetPixel(i, j).A == 0)
+                                    {
+                                        MannequinParts[spritePart].SetPixel(offset.X + i, offset.Y + j, Color.Transparent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex) { /* Ignore */ }
+
+            try
+            {
+                if (spriteBitmap != null)
+                {
+                    // Cut Transparency
+                    foreach (string pose in SpriteSheetHandler.SpriteAnimations)
+                    {
+                        foreach (Point p in Rules.PosesNCoordinates[spritePart][pose])
+                        {
+                            Point offset = new Point(p.X * Rules.BitmapSizeDefault, p.Y * Rules.BitmapSizeDefault);
+
+                            for (int i = 0; i < Rules.BitmapSizeDefault; i++)
+                            {
+                                for (int j = 0; j < Rules.BitmapSizeDefault; j++)
+                                {
+                                    if (spriteBitmap.GetPixel(offset.X + i, offset.Y + j).A < AppPreferences.TransparencyCut)
+                                    {
+                                        spriteBitmap.SetPixel(offset.X + i, offset.Y + j, Color.Transparent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    _originalSpriteBitmaps.Add(spritePart, spriteBitmap);
+                }
+            }
+            catch(Exception ex) { /* Ignore */ }
         }
 
         public int Count { get { return _originalSpriteBitmaps.Count; } }
@@ -63,21 +187,6 @@ namespace Starbound_ColorOptions_EasyPicker
 
             return result;
         }
-
-        //public bool TrySetSpriteBitmap(string spritePart, Bitmap bitmap)
-        //{
-        //    if(_originalSpriteBitmaps.ContainsKey(spritePart))
-        //    {
-        //        if(_originalSpriteBitmaps[spritePart] != null)
-        //            _originalSpriteBitmaps[spritePart].Dispose();
-
-        //        _originalSpriteBitmaps[spritePart] = bitmap;
-
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
 
         public void GetAllSpritePartsForCurrentFrame(string pose, int frame, Rules.Sex sex)
         {
@@ -92,27 +201,9 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     Bitmap humanPart = null;
 
-                    switch(spritePart)
+                    if(MannequinParts.ContainsKey(spritePart))
                     {
-                        case "Bsleeve":
-                            humanPart = Properties.Resources.human_Bsleeve;
-                            break;
-                        case "Fsleeve":
-                            humanPart = Properties.Resources.human_Fsleeve;
-                            break;
-                        case "head":
-                            humanPart = Properties.Resources.human_head;
-                            break;
-                        case "pants":
-                            if(sex == Rules.Sex.Male)
-                            {
-                                humanPart = Properties.Resources.human_pantsm;
-                            }
-                            else if(sex == Rules.Sex.Female)
-                            {
-                                humanPart = Properties.Resources.human_pantsf;
-                            }
-                            break;
+                        humanPart = MannequinParts[spritePart];
                     }
 
                     if(humanPart != null)

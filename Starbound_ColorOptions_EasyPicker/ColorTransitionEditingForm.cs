@@ -247,6 +247,8 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             InitializeComponent();
 
+            this.label_Status.Text = "";
+
             colorCircleBitmap = GetColorCircleBitmap();
 
             this._parent = parent;
@@ -284,6 +286,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
             OnRGBTrackBarChanged();
             DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(colors[0]), _selectPointCircleRadius);
+
 
             // Get the bitmap.
             Bitmap bm = new Bitmap(Properties.Resources.options_icon);
@@ -325,7 +328,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
             h = hsv.Item1;
             s = hsv.Item2;
-            Console.WriteLine("Value: " + v.ToString());
+            //Console.WriteLine("Value: " + v.ToString());
             //v = v; // Value isn't changing
 
             OnHSVTrackBarChanged();

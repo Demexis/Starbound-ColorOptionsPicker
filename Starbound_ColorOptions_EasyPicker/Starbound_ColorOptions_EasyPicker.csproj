@@ -283,6 +283,12 @@
     <Compile Include="Rules.cs" />
     <Compile Include="Processing\RulesProcessing.cs" />
     <Compile Include="Handlers\SpriteSheetHandler.cs" />
+    <Compile Include="SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="ColorTransitionEditingForm.resx">
       <DependentUpon>ColorTransitionEditingForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -311,6 +317,9 @@
     <EmbeddedResource Include="ResImages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResImages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -365,6 +374,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="planet_icon.ico" />
+    <None Include="Resources\human_chestm.png" />
+    <None Include="Resources\human_chestf.png" />
+    <None Include="Resources\human_pants.png" />
     <None Include="Resources\icon.png" />
     <None Include="Resources\options_icon.png" />
   </ItemGroup>

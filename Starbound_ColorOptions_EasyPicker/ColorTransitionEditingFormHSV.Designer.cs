@@ -46,6 +46,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.textBox_Hue = new System.Windows.Forms.TextBox();
             this.button_OK = new System.Windows.Forms.Button();
             this.button_Cancel = new System.Windows.Forms.Button();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.label_Status = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -55,11 +57,16 @@ namespace Starbound_ColorOptions_EasyPicker
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Value)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Hue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Saturation)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -85,8 +92,8 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             this.splitContainer1.Panel2.Controls.Add(this.button_OK);
             this.splitContainer1.Panel2.Controls.Add(this.button_Cancel);
-            this.splitContainer1.Size = new System.Drawing.Size(437, 257);
-            this.splitContainer1.SplitterDistance = 214;
+            this.splitContainer1.Size = new System.Drawing.Size(435, 250);
+            this.splitContainer1.SplitterDistance = 212;
             this.splitContainer1.TabIndex = 1;
             // 
             // label10
@@ -242,14 +249,46 @@ namespace Starbound_ColorOptions_EasyPicker
             this.button_Cancel.UseVisualStyleBackColor = true;
             this.button_Cancel.Click += new System.EventHandler(this.button_Cancel_Click);
             // 
+            // splitContainer2
+            // 
+            this.splitContainer2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.IsSplitterFixed = true;
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.splitContainer1);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.label_Status);
+            this.splitContainer2.Size = new System.Drawing.Size(437, 281);
+            this.splitContainer2.SplitterDistance = 252;
+            this.splitContainer2.TabIndex = 2;
+            // 
+            // label_Status
+            // 
+            this.label_Status.AutoSize = true;
+            this.label_Status.Location = new System.Drawing.Point(6, 4);
+            this.label_Status.Name = "label_Status";
+            this.label_Status.Size = new System.Drawing.Size(40, 13);
+            this.label_Status.TabIndex = 0;
+            this.label_Status.Text = "Status:";
+            // 
             // ColorTransitionEditingFormHSV
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(437, 257);
-            this.Controls.Add(this.splitContainer1);
+            this.ClientSize = new System.Drawing.Size(437, 281);
+            this.Controls.Add(this.splitContainer2);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ColorTransitionEditingFormHSV";
-            this.Text = "ColorTransitionEditingFormHSV";
+            this.Text = "Color Transition Editing - HSV";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -260,6 +299,11 @@ namespace Starbound_ColorOptions_EasyPicker
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Value)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Hue)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Saturation)).EndInit();
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -283,5 +327,7 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TrackBar trackBar_Hue;
+        private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.Label label_Status;
     }
 }

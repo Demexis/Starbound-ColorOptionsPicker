@@ -77,7 +77,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.textBox1.Text = "Import Mode";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // MergeRelpaceOrCancelForm
+            // MergeReplaceOrCancelForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -86,8 +86,11 @@ namespace Starbound_ColorOptions_EasyPicker
             this.Controls.Add(this.button_Cancel);
             this.Controls.Add(this.button_Replace);
             this.Controls.Add(this.button_Merge);
-            this.Name = "MergeRelpaceOrCancelForm";
-            this.Text = "MergeRelpaceOrCancelForm";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MergeReplaceOrCancelForm";
+            this.Text = "Import";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -26,6 +26,8 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             InitializeComponent();
 
+            this.label_Status.Text = "";
+
             this._parent = parent;
             this._items = items.ToList();
 
@@ -198,7 +200,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int hParse = int.Parse(textBox_Hue.Text);
-                hParse = MissingMath.Clamp(hParse, 0, 360);
+                hParse = MissingMath.Clamp(hParse, -180, 180);
                 h = hParse;
             }
             catch (Exception ex) { }

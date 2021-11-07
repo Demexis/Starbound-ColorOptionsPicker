@@ -86,19 +86,19 @@ namespace Starbound_ColorOptions_EasyPicker
 
                         JObject keyValuePairs = JObject.Parse(child.ToString());
 
-                        Console.WriteLine(keyValuePairs.ToString());
+                        //Console.WriteLine(keyValuePairs.ToString());
 
                         foreach (KeyValuePair<string, JToken> pair in keyValuePairs)
                         {
                             string keyHexCode, valueHexCode;
                             Color keyColor, valueColor;
-                            Console.WriteLine("JToken Pair: " + pair.ToString());
+                            //Console.WriteLine("JToken Pair: " + pair.ToString());
                             keyHexCode = '#' + pair.Key;
                             valueHexCode = '#' + (string)pair.Value;
                             keyColor = System.Drawing.ColorTranslator.FromHtml(keyHexCode);
                             valueColor = System.Drawing.ColorTranslator.FromHtml(valueHexCode);
 
-                            Console.WriteLine("Not Contains: " + (!transitionFromColor.Contains(keyColor)).ToString());
+                            //Console.WriteLine("Not Contains: " + (!transitionFromColor.Contains(keyColor)).ToString());
                             if (!transitionFromColor.Contains(keyColor))
                             {
                                 transitionFromColor.Add(keyColor);

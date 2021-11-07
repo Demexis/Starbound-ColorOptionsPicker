@@ -73,6 +73,26 @@ namespace Starbound_ColorOptions_EasyPicker.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap human_chestf {
+            get {
+                object obj = ResourceManager.GetObject("human_chestf", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap human_chestm {
+            get {
+                object obj = ResourceManager.GetObject("human_chestm", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap human_Fsleeve {
             get {
                 object obj = ResourceManager.GetObject("human_Fsleeve", resourceCulture);
@@ -93,19 +113,9 @@ namespace Starbound_ColorOptions_EasyPicker.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap human_pantsf {
+        internal static System.Drawing.Bitmap human_pants {
             get {
-                object obj = ResourceManager.GetObject("human_pantsf", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap human_pantsm {
-            get {
-                object obj = ResourceManager.GetObject("human_pantsm", resourceCulture);
+                object obj = ResourceManager.GetObject("human_pants", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -62,6 +62,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
             // Convert to an icon and use for the form's icon.
             this.Icon = Icon.FromHandle(bm.GetHicon());
+
+            this.label_Status.Text = "";
         }
 
         private void InitializePictureBox()
@@ -111,6 +113,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void DisableAllImportantControllers()
         {
+            this.label_Status.Text = "Disabling controllers...";
+
             button_ColorTransition_Add.Enabled = false;
             button_ColorTransition_Remove.Enabled = false;
             comboBox_ColorOption.Enabled = false;
@@ -123,10 +127,15 @@ namespace Starbound_ColorOptions_EasyPicker
             colorOptionsToolStripMenuItem.Enabled = false;
             closeToolStripMenuItem.Enabled = false;
             checkBox_ShowMannequin.Enabled = false;
+            label_ShowMannequin.Enabled = false;
+
+            this.label_Status.Text = "";
         }
 
         private void EnableAllImportantControllers()
         {
+            this.label_Status.Text = "Enabling controllers...";
+
             comboBox_ColorOption.Enabled = true;
             comboBox_Pose.Enabled = true;
             comboBox_Frame.Enabled = true;
@@ -137,10 +146,15 @@ namespace Starbound_ColorOptions_EasyPicker
             colorOptionsToolStripMenuItem.Enabled = true;
             closeToolStripMenuItem.Enabled = true;
             checkBox_ShowMannequin.Enabled = true;
+            label_ShowMannequin.Enabled = true;
+
+            this.label_Status.Text = "";
         }
 
         private void AddTransitionColorsFromJSON(string file)
         {
+            this.label_Status.Text = $"Adding transition colors from {file}";
+
             Dictionary<string, List<ColorTransitionItem>> colorTransitions = RulesProcessing.GetColorTransitionsFromJSON(file);
 
             foreach(string key in Enum.GetNames(typeof(Rules.ColorOptions)))
@@ -163,10 +177,14 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                 }
             }
+
+            this.label_Status.Text = "";
         }
 
         private void AddOriginalColors()
         {
+            this.label_Status.Text = "Adding original colors...";
+
             listView_OriginalSpriteColors.Items.Clear();
 
             List<Bitmap> bitmaps = new List<Bitmap>();
@@ -204,16 +222,22 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 listView_OriginalSpriteColors.Items.Add(listViewItem);
             }
+
+            this.label_Status.Text = "";
         }
 
         private void OpenColorTransitionEditor(params ListViewItem[] items)
         {
+            this.label_Status.Text = "Editing...";
             new ColorTransitionEditingForm(this, items).ShowDialog();
+            this.label_Status.Text = "";
         }
 
         private void OpenColorTransitionEditorHSV(params ListViewItem[] items)
         {
+            this.label_Status.Text = "HSV Editing...";
             new ColorTransitionEditingFormHSV(this, items).ShowDialog();
+            this.label_Status.Text = "";
         }
 
 
@@ -286,8 +310,8 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             _spriteSheetHandler.GetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
 
-            List<Bitmap> mannequinBitmaps = new List<Bitmap>();
-            mannequinBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+            List<Bitmap> bitmaps = new List<Bitmap>();
+            bitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
 
 
             foreach (string spritePart in SpriteSheetHandler.SpriteParts)
@@ -301,58 +325,46 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     if (bH != null)
                     {
-                        mannequinBitmaps.Add(bH);
+                        bitmaps.Add(bH);
                     }
                 }
-            }
 
-            List<Bitmap> spriteBitmaps = new List<Bitmap>();
-            spriteBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
-            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
-            {
-                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
                 {
-                    continue;
-                }
-
-                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap b))
-                {
-                    if (b != null)
+                    if (bA != null)
                     {
-                        spriteBitmaps.Add(b);
+                        using (Graphics g = Graphics.FromImage(bA))
+                        {
+                            foreach (ListViewItem item in listView_ColorTransition.Items)
+                            {
+                                // Set the image attribute's color mappings
+                                ColorMap[] colorMap = new ColorMap[1];
+                                colorMap[0] = new ColorMap();
+                                colorMap[0].OldColor = item.SubItems[0].BackColor;
+                                colorMap[0].NewColor = item.SubItems[3].BackColor;
+
+                                ImageAttributes attr = new ImageAttributes();
+                                attr.SetRemapTable(colorMap);
+
+                                // Draw using the color map
+                                Rectangle rect = new Rectangle(0, 0, bA.Width, bA.Height);
+                                g.DrawImage(bA, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
+                            }
+                        }
+
+                        bitmaps.Add(bA);
                     }
                 }
             }
 
-            Bitmap mergedMannequinBitmap = BitmapProcessing.GetMergedBitmaps(mannequinBitmaps.ToArray());
+            Bitmap mergedBitmaps = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
 
-            Bitmap mergedSpriteBitmap = BitmapProcessing.GetMergedBitmaps(spriteBitmaps.ToArray());
-
-            using (Graphics g = Graphics.FromImage(mergedSpriteBitmap))
-            {
-                foreach (ListViewItem item in listView_ColorTransition.Items)
-                {
-                    // Set the image attribute's color mappings
-                    ColorMap[] colorMap = new ColorMap[1];
-                    colorMap[0] = new ColorMap();
-                    colorMap[0].OldColor = item.SubItems[0].BackColor;
-                    colorMap[0].NewColor = item.SubItems[3].BackColor;
-
-                    ImageAttributes attr = new ImageAttributes();
-                    attr.SetRemapTable(colorMap);
-
-                    // Draw using the color map
-                    Rectangle rect = new Rectangle(0, 0, mergedSpriteBitmap.Width, mergedSpriteBitmap.Height);
-                    g.DrawImage(mergedSpriteBitmap, rect, 0, 0, rect.Width, rect.Height, GraphicsUnit.Pixel, attr);
-                }
-            }
-
-            Bitmap result = BitmapProcessing.GetMergedBitmaps(mergedMannequinBitmap, mergedSpriteBitmap);
-
-            result = BitmapProcessing.GetInterpolatedBitmap(result, this.pictureBox_ColoredSprite.Size);
+            Bitmap result = BitmapProcessing.GetInterpolatedBitmap(mergedBitmaps, this.pictureBox_ColoredSprite.Size);
 
             // Display the result.
             this.pictureBox_ColoredSprite.Image = result;
+
+            mergedBitmaps.Dispose();
         }
 
         private async void AsyncUpdate()
@@ -364,8 +376,11 @@ namespace Starbound_ColorOptions_EasyPicker
                 button_ColorTransition_Edit.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
                 button_ColorTransition_EditHSV.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
                 button_ColorTransition_Remove.Enabled = (listView_ColorTransition.SelectedItems.Count > 0);
+
+                saveToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
+                colorOptionsToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
                 
-                await Task.Delay(100);
+                await Task.Delay(50);
             }
         }
 
@@ -400,6 +415,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            this.label_Status.Text = "Opening...";
+
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 // Set validate names and check file exists to false otherwise windows will
@@ -415,6 +432,19 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    if(closeToolStripMenuItem.Enabled)
+                    {
+                        closeToolStripMenuItem_Click(sender, e);
+
+                        if(RemindToSaveFlag)
+                        {
+                            openFileDialog.Dispose();
+                            return;
+                        }
+                    }
+
+                    this.label_Status.Text = "Looking for files...";
+
                     string folderPath = Path.GetDirectoryName(openFileDialog.FileName);
 
                     //string[] files = Directory.GetFiles(folderPath);
@@ -426,6 +456,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
                     bool foundAtLeastOneFile = false;
 
+                    Dictionary<string, Bitmap> foundSprites = new Dictionary<string, Bitmap>();
                     foreach(FileInfo file in files)
                     {
                         foreach (string spritePart in SpriteSheetHandler.SpriteParts)
@@ -434,94 +465,438 @@ namespace Starbound_ColorOptions_EasyPicker
                             {
                                 foundAtLeastOneFile = true;
 
-                                Bitmap b = new Bitmap(file.FullName);
+                                Image img;
+                                using (var bmpTemp = new Bitmap(file.FullName))
+                                {
+                                    img = new Bitmap(bmpTemp);
+                                }
 
-                                _spriteSheetHandler.Add(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
+                                Bitmap b = (Bitmap)img;
+                                //Bitmap b = new Bitmap(file.FullName);
+
+                                foundSprites.Add(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
+
+                                //_spriteSheetHandler.Add(spritePart, b.Clone(new Rectangle(0, 0, b.Width, b.Height), b.PixelFormat));
                                 b.Dispose();
                             }
                         }
                     }
 
 
+                    _colorTransitionHandler.Clear();
+
                     if (foundAtLeastOneFile)
                     {
-                        _colorTransitionHandler.Clear();
-
                         _lastDirectory = folderPath;
                         this.Text = $"{_lastDirectory} - {AppPreferences.ApplicationName}";
 
-                        AddOriginalColors();
+                        this.label_Status.Text = "Checking .chest, .head, .legs, .back files...";
 
                         string[] chestFiles = System.IO.Directory.GetFiles(folderPath, "*.chest");
                         string[] headFiles = System.IO.Directory.GetFiles(folderPath, "*.head");
                         string[] legsFiles = System.IO.Directory.GetFiles(folderPath, "*.legs");
                         string[] backFiles = System.IO.Directory.GetFiles(folderPath, "*.back");
 
-                        if (chestFiles.Length > 0)
+                        if (!AppPreferences.IgnoreChestFiles)
                         {
-                            try
+                            if (chestFiles.Length > 0)
                             {
-                                AddTransitionColorsFromJSON(chestFiles[0]);
+                                try
+                                {
+                                    try
+                                    {
+                                        AddTransitionColorsFromJSON(chestFiles[0]);
+                                    }
+                                    catch (Exception ex) { /* Ignore */ }
+
+                                    Bitmap mask = null;
+
+                                    if (!AppPreferences.IgnoreMasks)
+                                    {
+                                        try
+                                        {
+                                            JObject json = JObject.Parse(File.ReadAllText(chestFiles[0]));
+
+                                            Console.WriteLine(json.ToString());
+
+                                            if (json.TryGetValue("mask", out JToken maskToken))
+                                            {
+                                                if (maskToken.Type == JTokenType.String)
+                                                {
+                                                    if (File.Exists(folderPath + @"\" + maskToken.ToString()))
+                                                    {
+                                                        Image img;
+                                                        using (var bmpTemp = new Bitmap(folderPath + @"\" + maskToken.ToString()))
+                                                        {
+                                                            img = new Bitmap(bmpTemp);
+                                                        }
+
+                                                        mask = (Bitmap)img;
+                                                        //mask = new Bitmap(folderPath + @"\" + maskToken.ToString());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex) { /* Ignore */ }
+                                    }
+
+                                    if (foundSprites.TryGetValue("Bsleeve", out Bitmap bSleeve))
+                                    {
+                                        _spriteSheetHandler.Add("Bsleeve", bSleeve, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("Bsleeve");
+                                    }
+                                    if (foundSprites.TryGetValue("chestm", out Bitmap chestm))
+                                    {
+                                        _spriteSheetHandler.Add("chestm", chestm, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("chestm");
+                                    }
+                                    if (foundSprites.TryGetValue("chestf", out Bitmap chestf))
+                                    {
+                                        _spriteSheetHandler.Add("chestf", chestf, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("chestf");
+                                    }
+                                    if (foundSprites.TryGetValue("chest", out Bitmap chest))
+                                    {
+                                        _spriteSheetHandler.Add("chest", chest, mask);
+                                    }
+                                    if (foundSprites.TryGetValue("Fsleeve", out Bitmap fSleeve))
+                                    {
+                                        _spriteSheetHandler.Add("Fsleeve", fSleeve, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("Fsleeve");
+                                    }
+
+                                    if (mask != null)
+                                    {
+                                        mask.Dispose();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    //MessageBox.Show($"The file {Path.GetFileName(chestFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing. \n\nException message: {ex.Message}", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show($"The file {Path.GetFileName(chestFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                if (foundSprites.TryGetValue("Bsleeve", out Bitmap bSleeve))
+                                {
+                                    _spriteSheetHandler.Add("Bsleeve", bSleeve);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("Bsleeve");
+                                }
+                                if (foundSprites.TryGetValue("chestm", out Bitmap chestm))
+                                {
+                                    _spriteSheetHandler.Add("chestm", chestm);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("chestm");
+                                }
+                                if (foundSprites.TryGetValue("chestf", out Bitmap chestf))
+                                {
+                                    _spriteSheetHandler.Add("chestf", chestf);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("chestf");
+                                }
+                                if (foundSprites.TryGetValue("chest", out Bitmap chest))
+                                {
+                                    _spriteSheetHandler.Add("chest", chest);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("chest");
+                                }
+                                if (foundSprites.TryGetValue("Fsleeve", out Bitmap fSleeve))
+                                {
+                                    _spriteSheetHandler.Add("Fsleeve", fSleeve);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("Fsleeve");
+                                }
                             }
                         }
-                        if (headFiles.Length > 0)
+                        else
                         {
-                            try
-                            {
-                                AddTransitionColorsFromJSON(headFiles[0]);
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"The file {Path.GetFileName(headFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-                            }
+                            _spriteSheetHandler.Add("Bsleeve");
+                            _spriteSheetHandler.Add("chestm");
+                            _spriteSheetHandler.Add("chestf");
+                            _spriteSheetHandler.Add("Fsleeve");
                         }
 
-                        if (legsFiles.Length > 0)
+                        if (!AppPreferences.IgnoreHeadFiles)
                         {
-                            try
+                            if (headFiles.Length > 0)
                             {
-                                AddTransitionColorsFromJSON(legsFiles[0]);
+                                try
+                                {
+                                    try
+                                    {
+                                        AddTransitionColorsFromJSON(headFiles[0]);
+                                    }
+                                    catch (Exception ex) { /* Ignore */ }
+
+                                    Bitmap mask = null;
+
+                                    if (!AppPreferences.IgnoreMasks)
+                                    {
+                                        try
+                                        {
+                                            JObject json = JObject.Parse(File.ReadAllText(headFiles[0]));
+
+                                            Console.WriteLine(json.ToString());
+
+                                            if (json.TryGetValue("mask", out JToken maskToken))
+                                            {
+                                                if (maskToken.Type == JTokenType.String)
+                                                {
+                                                    if (File.Exists(folderPath + @"\" + maskToken.ToString()))
+                                                    {
+                                                        Image img;
+                                                        using (var bmpTemp = new Bitmap(folderPath + @"\" + maskToken.ToString()))
+                                                        {
+                                                            img = new Bitmap(bmpTemp);
+                                                        }
+
+                                                        mask = (Bitmap)img;
+
+                                                        //mask = new Bitmap(folderPath + @"\" + maskToken.ToString());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex) { /* Ignore */ }
+                                    }
+
+                                    if (foundSprites.TryGetValue("head", out Bitmap head))
+                                    {
+                                        _spriteSheetHandler.Add("head", head, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("head");
+                                    }
+
+                                    if (mask != null)
+                                    {
+                                        mask.Dispose();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    //MessageBox.Show($"The file {Path.GetFileName(headFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show($"The file {Path.GetFileName(legsFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                if (foundSprites.TryGetValue("head", out Bitmap head))
+                                {
+                                    _spriteSheetHandler.Add("head", head);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("head");
+                                }
                             }
                         }
-
-                        if (backFiles.Length > 0)
+                        else
                         {
-                            try
+                            _spriteSheetHandler.Add("head");
+                        }
+
+                        if (!AppPreferences.IgnoreLegsFiles)
+                        {
+                            if (legsFiles.Length > 0)
                             {
-                                AddTransitionColorsFromJSON(backFiles[0]);
+                                try
+                                {
+                                    try
+                                    {
+                                        AddTransitionColorsFromJSON(legsFiles[0]);
+                                    }
+                                    catch (Exception ex) { /* Ignore */ }
+
+                                    Bitmap mask = null;
+
+                                    if (!AppPreferences.IgnoreMasks)
+                                    {
+                                        try
+                                        {
+                                            JObject json = JObject.Parse(File.ReadAllText(legsFiles[0]));
+
+                                            Console.WriteLine(json.ToString());
+
+                                            if (json.TryGetValue("mask", out JToken maskToken))
+                                            {
+                                                if (maskToken.Type == JTokenType.String)
+                                                {
+                                                    if (File.Exists(folderPath + @"\" + maskToken.ToString()))
+                                                    {
+                                                        Image img;
+                                                        using (var bmpTemp = new Bitmap(folderPath + @"\" + maskToken.ToString()))
+                                                        {
+                                                            img = new Bitmap(bmpTemp);
+                                                        }
+
+                                                        mask = (Bitmap)img;
+
+                                                        //mask = new Bitmap(folderPath + @"\" + maskToken.ToString());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex) { /* Ignore */ }
+                                    }
+
+                                    if (foundSprites.TryGetValue("pants", out Bitmap pants))
+                                    {
+                                        _spriteSheetHandler.Add("pants", pants, mask);
+                                    }
+                                    else
+                                    {
+                                        _spriteSheetHandler.Add("pants");
+                                    }
+
+                                    if (mask != null)
+                                    {
+                                        mask.Dispose();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    //MessageBox.Show($"The file {Path.GetFileName(legsFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show($"The file {Path.GetFileName(backFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                if (foundSprites.TryGetValue("pants", out Bitmap pants))
+                                {
+                                    _spriteSheetHandler.Add("pants", pants);
+                                }
+                                else
+                                {
+                                    _spriteSheetHandler.Add("pants");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _spriteSheetHandler.Add("pants");
+                        }
+
+                        if (!AppPreferences.IgnoreBackFiles)
+                        {
+                            if (backFiles.Length > 0)
+                            {
+                                try
+                                {
+                                    try
+                                    {
+                                        AddTransitionColorsFromJSON(backFiles[0]);
+                                    }
+                                    catch (Exception ex) { /* Ignore */ }
+
+                                    Bitmap mask = null;
+
+                                    if (!AppPreferences.IgnoreMasks)
+                                    {
+                                        try
+                                        {
+                                            JObject json = JObject.Parse(File.ReadAllText(backFiles[0]));
+
+                                            Console.WriteLine(json.ToString());
+
+                                            if (json.TryGetValue("mask", out JToken maskToken))
+                                            {
+                                                if (maskToken.Type == JTokenType.String)
+                                                {
+                                                    if (File.Exists(folderPath + @"\" + maskToken.ToString()))
+                                                    {
+                                                        Image img;
+                                                        using (var bmpTemp = new Bitmap(folderPath + @"\" + maskToken.ToString()))
+                                                        {
+                                                            img = new Bitmap(bmpTemp);
+                                                        }
+
+                                                        mask = (Bitmap)img;
+
+                                                        //mask = new Bitmap(folderPath + @"\" + maskToken.ToString());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        catch (Exception ex) { /* Ignore */ }
+                                    }
+
+                                    if (foundSprites.TryGetValue("back", out Bitmap back))
+                                    {
+                                        _spriteSheetHandler.Add("back", back, mask);
+                                    }
+
+                                    if (mask != null)
+                                    {
+                                        mask.Dispose();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    //MessageBox.Show($"The file {Path.GetFileName(backFiles[0])} has an invalid structure, is damaged or the \"colorOptions\" key is missing.", "Import Failed", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                                }
+                            }
+                            else
+                            {
+                                if (foundSprites.TryGetValue("back", out Bitmap back))
+                                {
+                                    _spriteSheetHandler.Add("back", back);
+                                }
                             }
                         }
 
                         EnableAllImportantControllers();
-
-                        UpdateTransitionListView();
-
-                        OnPoseChange();
                     }
+                    else
+                    {
+                        this.Text = $"{AppPreferences.ApplicationName}";
+                    }
+
+                    AddOriginalColors();
+
+                    UpdateTransitionListView();
+
+                    OnPoseChange();
                 }
             }
+
+            this.label_Status.Text = "";
         }
 
         private void comboBox_Pose_SelectedIndexChanged(object sender, EventArgs e)
         {
+            this.label_Status.Text = "Changing pose...";
             OnPoseChange();
+            this.label_Status.Text = "";
         }
 
         private void comboBox_Frame_SelectedIndexChanged(object sender, EventArgs e)
         {
+            this.label_Status.Text = "Changing frame...";
             UpdateOriginalSprite();
+            this.label_Status.Text = "";
         }
 
         private void listView_OriginalSpriteColors_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -628,6 +1003,9 @@ namespace Starbound_ColorOptions_EasyPicker
                         Stream myStream;
                         SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
+                        DateTime localDate = DateTime.Now;
+
+                        saveFileDialog1.FileName = $"colorOptions-{localDate.Year}_{localDate.Month}_{localDate.Day}-{localDate.Hour}_{localDate.Minute}_{localDate.Second}";
                         saveFileDialog1.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
                         saveFileDialog1.FilterIndex = 1;
                         saveFileDialog1.RestoreDirectory = true;
@@ -666,7 +1044,16 @@ namespace Starbound_ColorOptions_EasyPicker
             this.listView_OriginalSpriteColors.Items.Clear();
             this.listView_ColorTransition.Items.Clear();
 
+            if(this.pictureBox_OriginalSprite.Image != null)
+            {
+                this.pictureBox_OriginalSprite.Image.Dispose();
+            }
             this.pictureBox_OriginalSprite.Image = null;
+
+            if (this.pictureBox_ColoredSprite.Image != null)
+            {
+                this.pictureBox_ColoredSprite.Image.Dispose();
+            }
             this.pictureBox_ColoredSprite.Image = null;
 
             DisableAllImportantControllers();
@@ -879,6 +1266,10 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void pictureBox_OriginalSprite_Click(object sender, EventArgs e)
         {
+            if (_spriteSheetHandler.Count == 0) return;
+            
+            this.label_Status.Text = "Trying to take a color from the original sprite...";
+
             List<Bitmap> bitmaps = new List<Bitmap>();
             foreach (string spritePart in SpriteSheetHandler.SpriteParts)
             {
@@ -927,10 +1318,16 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 OnChangeDone();
             }
+
+            this.label_Status.Text = "";
         }
 
         private void pictureBox_ColoredSprite_Click(object sender, EventArgs e)
         {
+            if (_spriteSheetHandler.Count == 0) return;
+
+            this.label_Status.Text = "Trying to take a color from the colored sprite...";
+
             List<Bitmap> bitmaps = new List<Bitmap>();
             foreach (string spritePart in SpriteSheetHandler.SpriteParts)
             {
@@ -985,17 +1382,23 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 OpenColorTransitionEditor(items.ToArray());
             }
+
+            this.label_Status.Text = "";
         }
 
         private void colorOptionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            this.label_Status.Text = "Exporting...";
             string jsonText = RulesProcessing.GetJSONStringFromColorTransitionHandler(_colorTransitionHandler);
 
             new OutputForm(jsonText).ShowDialog();
+            this.label_Status.Text = "";
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            this.label_Status.Text = "Closing...";
+
             if (File.Exists("tempHtmlDocumentationFile_SBCOP.html"))
             {
                 File.Delete("tempHtmlDocumentationFile_SBCOP.html");
@@ -1014,6 +1417,9 @@ namespace Starbound_ColorOptions_EasyPicker
                     Stream myStream;
                     SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
+                    DateTime localDate = DateTime.Now;
+
+                    saveFileDialog1.FileName = $"colorOptions-{localDate.Year}_{localDate.Month}_{localDate.Day}-{localDate.Hour}_{localDate.Minute}_{localDate.Second}";
                     saveFileDialog1.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
                     saveFileDialog1.FilterIndex = 1;
                     saveFileDialog1.RestoreDirectory = true;
@@ -1042,6 +1448,8 @@ namespace Starbound_ColorOptions_EasyPicker
                     break;
 
             }
+
+            this.label_Status.Text = "";
         }
 
         private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -1057,6 +1465,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void button_EditHSV_Click(object sender, EventArgs e)
         {
+            this.label_Status.Text = "HSV Editing...";
+
             if (listView_ColorTransition.SelectedItems.Count > 0)
             {
                 List<ListViewItem> itemList = new List<ListViewItem>();
@@ -1071,6 +1481,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 OpenColorTransitionEditorHSV(itemList.ToArray());
             }
+
+            this.label_Status.Text = "";
         }
 
         private void checkBox_ShowMannequin_CheckedChanged(object sender, EventArgs e)
@@ -1092,26 +1504,10 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string html = "<!doctype html><html lang='en'> <head> <meta charset='utf - 8'> <title>D. Sorochinsky - HTML 1.PW - Battlestar Galactica</title> <meta name='description' content='Small HTML doc'> <meta name='viewport' content='width = device - width, initial - scale = 1'> <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap'> </head><style>* { box-sizing: border-box;}html { font-family: -applesystem, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sansserif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 14px; color: #212121; line-height: 1.5;}body { margin: 0; background-image: url('https://wallpaperbat.com/img/225446-minimalist-space-wallpaper-top-free-minimalist-space.png'); background-repeat: no-repeat; background-attachment: fixed; background-size: cover;}h1, h2, h3 { font-family: 'Roboto', cursive; padding: 1rem;}header { background-color: rgb(72, 100, 100); padding: 4rem 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}nav { background-color: rgb(45, 65, 151); padding: 1rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}footer { background-color: rgb(0, 0, 0); padding: 4rem 1rem; margin-top: 4rem; border: 2px solid rgb(0, 217, 255); border-radius: 5px; color: #c7ffe0; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596);}header p, footer p { margin: 0;}nav ul { margin: 0; padding: 0;}nav ul li { list-style-type: none; display: inline-block;}nav ul li::after { content: ' § ';}nav ul li:last-child::after { content: '';}nav ul li a { color:rgb(255, 190, 50);text-decoration:none}main { padding: 0 1rem;}main p { text-align: justify; padding: 1rem;}.related-panel h3 { text-align: center;}.related-panel img { display: block; margin-left: auto; margin-right: auto; max-width: 100%;}figure { display: block; width: 100%; margin: 0; position: relative;}figure img { display: block; width: 100%;}figure figcaption { position: absolute; left: 0; bottom: 0; display: block; width: 100%; padding: 0.5rem 1rem; background-color: rgba(0, 0, 0, 0.3); color: white; font-family: 'Roboto', cursive;}@media screen and (min-width: 992px) { html { font-size: 16px; } main { padding: 0; } .container { display: block; width: 992px; margin-left: auto; margin-right: auto; } .container_body { display: block; width: 992px; margin-left: auto; margin-right: auto; background-color: rgba(203, 213, 218, 0.98); border: 2px solid rgb(0, 217, 255); border-radius: 5px; box-shadow: 0px 0px 40px rgba(255, 255, 255, 0.596); } } .columns-2 { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: stretch;}.columns-2 article { flex: 2; margin-right: 0.5rem;}.columns-2 aside { flex: 1; margin-left: 0.5rem;}.related-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 1rem; row-gap: 1rem;}.related-panel { padding: 1rem;}table.modern { /* platums */ width: 100%; /* likvidē atstarpi starp šūnām */ border-collapse: collapse; /* tabulas ārējais rāmis */ border: 1px solid #01579B;}/* tabulas galvenes šūnas */table.modern th { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* fona krāsa */ background-color: #01579B; /* teksta krāsa */ color: #FFFFFF; /* teksta līdzināšana */ text-align: left;}/* tabulas datu šūnas */table.modern td { /* šūnu rāmis */ border: 1px solid #01579B; /* atkāpe */ padding: 0.25rem 0.5rem; /* teksta krāsa */ color: #212121;}/* hipersaites tabulas datu šūnās */table.modern td a { /* teksta krāsa */ color: #2d8f70; /* teksta biezums */ font-weight: bold;}/* tabulas rindu 'zebras' krāsojums *//* selektors 'tr:nth-child(even)' atlasa katru otro tabulas rindu */table.modern tr:nth-child(even) td { /* fona krāsa */ background-color: #E1F5FE;}/* tabulas rindu izcēluma (hover) krāsojums *//* selektors 'tr:hover' darbojas tikai tad, kad kursors atrodas virs tabulas rindas */table.modern tr:hover td { /* fona krāsa */ background-color: #B3E5FC;}</style> <body> <!-- galvene --> <header class='container'> <p>1. Practical Work</p> </header> <!-- navigācijas bloks --> <nav class='container'> <ul> <li> <a href='https://en.wikipedia.org/wiki/Battlestar_Galactica' target='_blank'>Wikipedia</a> </li> <li> <a href='https://galactica.fandom.com/wiki/Battlestar_Galactica_Wiki' target='_blank'>Wiki Fandom</a> </li> <li> <a href='https://www.google.com/search?q=battlestar+galactica&sxsrf=AOaemvL-CzyGr_JFWwqgs7JhPbyGDQ9M2A%3A1634932835705&source=hp&ei=YxhzYfzNKKOorgT6opf4AQ&iflsig=ALs-wAMAAAAAYXMmcySlm3TBLgFwXj6TIdHPTVxg_rZ0&oq=battlestar+galactica&gs_lcp=Cgdnd3Mtd2l6EAMYADIECCMQJzIECCMQJzIECCMQJzIFCC4QywEyBQgAEIAEMgUILhCABDIFCC4QgAQyBQgAEIAEMgUILhCABDIFCAAQgAQ6BAgAEEM6BQgAEJECOgoIABCABBCHAhAUOgQILhBDOgoILhDHARDRAxBDOgsILhCABBDHARDRAzoFCAAQywFQnwJY0hBgshpoAHAAeACAAYkBiAHxCZIBBDEzLjKYAQCgAQE&sclient=gws-wiz' target='_blank'>Google Search</a> </li> <li> <a href='https://git-scm.com/' target='_blank'>Git</a> </li> </ul> </nav> <!-- saturs --> <main class='container_body'> <div class='columns-2'> <article> <h1>Battlestar Galactica</h1> <figure> <img src='https://www.kotaku.com.au/content/uploads/sites/3/2017/08/02/lekiwrpl78nqsmih8j8a.jpg' alt='Battlestar_Galactica_Logo'> <figcaption>Battlestar Galactica</figcaption> </figure> <p><em>Battlestar Galactica</em> (BSG) is an American military science fiction television series, and part of the Battlestar Galactica franchise.</p> <p>A group of humans aboard a battleship, Battlestar Galactica, are forced to abandon their planet after being attacked by Cylons. They try to evade the Cylons while searching for their true home, Earth.</p> </article> <aside> <h2>Characters</h2> <table class='modern'> <tr> <th>Full Name</th> <th>Homeworld</th> </tr> <tr> <td>&ensp;William 'Bill' Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Leland Adama</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Gaius Baltar</td> <td>&ensp;Aerilon</td> </tr> <tr> <td>&ensp;Kara Thrace</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Laura Roslin</td> <td>&ensp;Caprica</td> </tr> <tr> <td>&ensp;Helena Cain</td> <td>&ensp;Tauron</td> </tr> <tr> <td>&ensp;Sharon Valerii</td> <td>&ensp;The Colony</td> </tr> </table> </aside> </div> <section> <h2>Main characters</h2> <div class='related-grid'> <section class='related-panel'> <h3>William 'Bill' Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/c/ce/William_Adama_headshot.jpg/revision/latest/scale-to-width-down/338?cb=20100326215247' alt='William'> <p>Admiral William Adama was an officer in the Colonial Fleet. Born to a Caprican family of Tauron heritage, Adama was conscripted into military service during the Cylon War, in which he served as a Raptor and Viper pilot under the callsign 'Husker'.</p> </section> <section class='related-panel'> <h3>Leland Adama</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/37/LeeAdama.jpg/revision/latest/scale-to-width-down/350?cb=20090601114012' alt='Leland'> <p>Leland Joseph Adama, commonly referred to as just 'Lee' or by his call sign of 'Apollo', is a former Colonial Fleet Reserve officer who became the Caprican delegate to the Quorum of Twelve, then later the interim President of the Twelve Colonies of Kobol. He is the sole surviving son of William Adama.</p> </section> <section class='related-panel'> <h3>Gaius Baltar</h3> <img src='https://static.wikia.nocookie.net/galactica/images/3/3b/BaltarSeason4.png/revision/latest/scale-to-width-down/350?cb=20180805033032' alt='Gaius'> <p>Dr. Gaius Baltar was an accomplished computer scientist of Aerelonean descent. Shunning his farming background, Baltar became a celebrity figure with political connections, which enabled a successful push for the re-introduction of software networking in military vessels in the aftermath of the Cylon War.</p> </section> <section class='related-panel'> <h3>Laura Roslin</h3> <img src='https://static.wikia.nocookie.net/galactica/images/2/27/LauraRoslinS4.jpg/revision/latest/scale-to-width-down/350?cb=20180805034141' alt='Laura'> <p>Laura Roslin was the President of the United Colonies of Kobol, having served as Secretary of Education under President Richard Adar, and sworn into office as the highest ranked government official who survived the Fall of the Twelve Colonies. Roslin subsequently became the political leader of the remnants of the Colonial fleet, along with Commander William Adama.</p> </section> <section class='related-panel'> <h3>Kara Thrace</h3> <img src='https://static.wikia.nocookie.net/galactica/images/5/55/Kara_Thrace.jpg/revision/latest/scale-to-width-down/350?cb=20090601070409' alt='Kara'> <p>Kara 'Starbuck' Thrace was a Viper pilot in the Colonial Fleet. She is a gifted Viper pilot, with an attitude that at times thwarts her career advancement.</p> </section> </div> </section> </main> <!-- kājene --> <footer> <p class='container'>Devid Sorochinsky, VeA, 2021</p> </footer> </body></html>";
-            File.WriteAllText("tempHtmlDocumentationFile_SBCOP.html", html);
-
-            //System.Diagnostics.Process.Start("http:");
-
-            System.Diagnostics.Process.Start("tempHtmlDocumentationFile_SBCOP.html");
-
-            Thread.Sleep(10000);
-            //System.Diagnostics.Process.Start("about:Blank", html);
-
-            if(File.Exists("tempHtmlDocumentationFile_SBCOP.html"))
-            {
-                File.Delete("tempHtmlDocumentationFile_SBCOP.html");
-            }
-        }
-
         private void pictureBox1_Click(object sender, EventArgs e)
         {
+            this.label_Status.Text = "Changing the background color...";
+
             Color previousColor = pictureBox1.BackColor;
 
             switch(colorDialog1.ShowDialog())
@@ -1129,6 +1525,18 @@ namespace Starbound_ColorOptions_EasyPicker
                     pictureBox_OriginalSprite.BackColor = previousColor;
                     break;
             }
+
+            this.label_Status.Text = "";
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.label_Status.Text = "Changing the settings...";
+
+            SettingsForm settingsForm = new SettingsForm();
+            settingsForm.ShowDialog();
+
+            this.label_Status.Text = "";
         }
     }
 }

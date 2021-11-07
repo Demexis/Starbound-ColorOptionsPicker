@@ -17,6 +17,8 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             InitializeComponent();
 
+            this.label_Status.Text = "";
+
             richTextBox1.Text = jsonText;
 
             // Get the bitmap.
@@ -36,6 +38,9 @@ namespace Starbound_ColorOptions_EasyPicker
             Stream myStream;
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
 
+            DateTime localDate = DateTime.Now;
+
+            saveFileDialog1.FileName = $"colorOptions-{localDate.Year}_{localDate.Month}_{localDate.Day}-{localDate.Hour}_{localDate.Minute}_{localDate.Second}";
             saveFileDialog1.Filter = "Normal text file (*.txt)|*.txt|All files (*.*)|*.*";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;

@@ -123,8 +123,8 @@ namespace Starbound_ColorOptions_EasyPicker
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.label_Status);
-            this.splitContainer1.Size = new System.Drawing.Size(346, 284);
-            this.splitContainer1.SplitterDistance = 255;
+            this.splitContainer1.Size = new System.Drawing.Size(346, 278);
+            this.splitContainer1.SplitterDistance = 249;
             this.splitContainer1.TabIndex = 4;
             // 
             // label_Status
@@ -143,7 +143,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(344, 253);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(344, 247);
             this.flowLayoutPanel2.TabIndex = 4;
             // 
             // label2
@@ -225,6 +225,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // panel1
             // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.button_Close);
             this.panel1.Location = new System.Drawing.Point(3, 212);
             this.panel1.Name = "panel1";
@@ -281,7 +282,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(346, 284);
+            this.ClientSize = new System.Drawing.Size(346, 278);
             this.Controls.Add(this.splitContainer1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;

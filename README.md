@@ -18,5 +18,5 @@ Here's an example of exporting data:
 * [.NET Framework 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653)
 	
 ## Setup
-To run this utility, download [the latest release](/releases/latest).
+To run this utility, download [the latest release](/releases).
 

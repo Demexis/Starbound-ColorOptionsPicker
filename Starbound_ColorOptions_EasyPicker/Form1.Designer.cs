@@ -901,7 +901,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.Text = "Starbound - Color Option\'s Picker";
+            this.Text = "Starbound - Color Options Picker";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

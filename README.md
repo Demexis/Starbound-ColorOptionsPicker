@@ -6,7 +6,7 @@
 * [Setup](#setup)
 
 ## Overview
-"Color Options Picker" - is an application for more convenient color matching for the "colorOptions" parameter.
+"Color Options Picker" - an application for more convenient color matching for the "colorOptions" parameter.
 
 ![Main Window](Readme/overview_img_main.png)
 

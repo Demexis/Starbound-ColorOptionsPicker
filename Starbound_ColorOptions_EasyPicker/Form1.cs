@@ -379,7 +379,9 @@ namespace Starbound_ColorOptions_EasyPicker
 
                 saveToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
                 colorOptionsToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
-                
+
+                comboBox_ColorOption.Enabled = (listView_ColorTransition.Items.Count > 0);
+
                 await Task.Delay(50);
             }
         }

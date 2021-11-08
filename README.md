@@ -6,7 +6,7 @@
 * [Setup](#setup)
 
 ## Overview
-"Color Options Picker" - is a utility for more convenient color matching for the "colorOptions" parameter.
+"Color Options Picker" - is an application for more convenient color matching for the "colorOptions" parameter.
 
 ![Main Window](Readme/overview_img_main.png)
 
@@ -18,5 +18,5 @@ Here's an example of exporting data:
 * [.NET Framework 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653)
 	
 ## Setup
-To run this utility, download [the latest release](../../releases).
+To run this application, download [the latest release](../../releases).
 

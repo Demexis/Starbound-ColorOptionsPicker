@@ -1497,7 +1497,7 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             try
             {
-                System.Diagnostics.Process.Start(@"https://github.com/Demexis/Starbound---Color-Options-Picker");
+                System.Diagnostics.Process.Start(@"https://github.com/Demexis/Starbound-ColorOptionsPicker");
             }
             catch (System.ComponentModel.Win32Exception noBrowser)
             {

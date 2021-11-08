@@ -8,7 +8,7 @@
     <ProjectGuid>{E5D3CB1B-8F5A-4D37-8CB4-8FF63610D4A8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Starbound_ColorOptions_EasyPicker</RootNamespace>
-    <AssemblyName>Starbound_ColorOptions_EasyPicker</AssemblyName>
+    <AssemblyName>SB Color Options Picker</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
@@ -65,7 +65,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>planet_icon.ico</ApplicationIcon>
+    <ApplicationIcon>iconLarge.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -374,6 +374,8 @@
     <None Include="Resources\planet_icon.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="icon.ico" />
+    <Content Include="iconLarge.ico" />
     <Content Include="planet_icon.ico" />
     <None Include="Resources\human_chestm.png" />
     <None Include="Resources\human_chestf.png" />

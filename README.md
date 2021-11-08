@@ -52,6 +52,8 @@ Now you can select colors in the "Color Transitions" list and click one of the t
 
 ![Edit HSV Form](Readme/readme_colorTransition_EditingHSV.png)
 
+It is important to be aware of another color selection option. You can select a specific color for editing by clicking on a pixel in the image under the "Colored Sprite" label.
+
 After choosing the colors, in order to export these entries back to the filled "colorOptions" parameter, select ***File -> Export -> Color Options...***
 
 ![File Export](Readme/readme_export_colorOptions.png)

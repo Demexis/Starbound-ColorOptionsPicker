@@ -19,13 +19,13 @@ To run this application, download [the latest release](../../releases).
 
 
 ## Usage
-First you need to open the folder that contains the files related to the suit. These files have the extensions .head, .chest, .legs, and .back.
+First you need to open the folder that contains the files related to the costume. These files have the extensions .head, .chest, .legs, and .back.
 Click ***File -> Open...*** and select a folder.
 
 ![File Open](Readme/readme_open.png)
 ![Open Dialog Form](Readme/readme_open_dialog.png)
 
-After that, you should see a picture of your suit and the colors that appear in the "Original Sprite's Colors" list.
+After that, you should see a picture of your costume and the colors that appear in the "Original Sprite's Colors" list.
 Also, if JSON files have a "colorOptions" parameter, its entries will appear in the "Color Transitions" list.
 
 ![File Opened](Readme/readme_open_done.png)

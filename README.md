@@ -34,21 +34,21 @@ Note that you can only edit one type of dye at a time. By default, the dye type 
 
 ![Color Option ComboBox](Readme/readme_colorOption_comboBox.png)
 
-To add editable colors, select them from the "Original Sprite's Colors" list and click the "Add Transition" button.
+To add editable colors, select them from the "Original Sprite's Colors" list and click the **"Add Transition"** button.
 
 ![Add Transitions](Readme/readme_selectOriginalColors.png)
 
 If these colors were not already in the list, then they will be added to "Color Transitions".
-Now you can select colors in the "Color Transitions" list and click one of the three buttons: "Remove", "Edit ..." or "Hue / Saturation".
+Now you can select colors in the "Color Transitions" list and click one of the three buttons: **"Remove"**, **"Edit..."** or **"Hue / Saturation"**.
 
 ![Edit Transitions](Readme/readme_colorTransitions.png)
 
-* The "Remove" button simply removes the selected colors from the list.
-* The "Edit ..." button opens a new window where you select a transition color. These, as I call them, "transition colors" are displayed on your suit in the image under the "Colored Sprite" label.
+* The **"Remove"** button simply removes the selected colors from the list.
+* The **"Edit ..."** button opens a new window where you select a transition color. These, as I call them, "transition colors" are displayed on your suit in the image under the "Colored Sprite" label.
 
 ![Edit Form](Readme/readme_colorTransition_Editing.png)
 
-* The "Hue / Saturation" button opens a new window where you edit the hue, saturation and brightness of the selected transition colors.
+* The **"Hue / Saturation"** button opens a new window where you edit the hue, saturation and brightness of the selected transition colors.
 
 ![Edit HSV Form](Readme/readme_colorTransition_EditingHSV.png)
 
@@ -62,5 +62,5 @@ Here is an example of exported data:
 
 ![Export Window](Readme/overview_img_export.png)
 	
-You can select the lines of code you need and copy them, or click the "Copy to Clipboard" button, or save everything to a text file.
+You can select the lines of code you need and copy them, or click the **"Copy to Clipboard"** button, or save everything to a text file.
 

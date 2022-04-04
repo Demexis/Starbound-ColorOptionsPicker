@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Starbound_ColorOptions_EasyPicker
 {
-    public class ColorProcessing
+    public static class ColorProcessing
     {
         public static String HexConverter(System.Drawing.Color c)
         {
@@ -16,7 +16,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
         public static Color GetColorFromHue(int h)
         {
-            h = MissingMath.Clamp(h, 0, 360);
+            h = Mathf.Clamp(h, 0, 360);
 
             int r, g, b;
 
@@ -138,6 +138,68 @@ namespace Starbound_ColorOptions_EasyPicker
             //Console.WriteLine("(" + h + " " + s + " " + v + ")");
 
             return Tuple.Create((int)(hue), (int)(saturation), (int)(value));
+        }
+
+        public static Color ChangeColorHue(Color color, int hue)
+        {
+            if (hue < 0 || hue > 360) throw new Exception("Incorrect argument: Hue should have a range of 0 to 360.");
+
+            Tuple<int, int, int> hsv = RGBtoHSV(color.R, color.G, color.B);
+
+            Tuple<int, int, int> rgb = HSVToRGB(hue, hsv.Item2, hsv.Item3);
+
+            return Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+        }
+
+        public static Color ChangeColorSaturation(Color color, int saturation)
+        {
+            if (saturation < 0 || saturation > 100) throw new Exception("Incorrect argument: Saturation should have a range of 0 to 100.");
+
+            Tuple<int, int, int> hsv = RGBtoHSV(color.R, color.G, color.B);
+
+            Tuple<int, int, int> rgb = HSVToRGB(hsv.Item1, saturation, hsv.Item3);
+
+            return Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+        }
+
+        public static Color ChangeColorValue(Color color, int value)
+        {
+            if (value < 0 || value > 100) throw new Exception("Incorrect argument: Value should have a range of 0 to 100.");
+
+            Tuple<int, int, int> hsv = RGBtoHSV(color.R, color.G, color.B);
+
+            Tuple<int, int, int> rgb = HSVToRGB(hsv.Item1, hsv.Item2, value);
+
+            return Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+        }
+
+        public static Color MultiplyColorBy(Color color, float c)
+        {
+            return MultiplyColorBy(color, c, c, c);
+        }
+
+        public static Color MultiplyColorBy(Color color, float rC, float gC, float bC)
+        {
+            int r = Mathf.Clamp((int)(color.R * rC), 0, 255);
+            int g = Mathf.Clamp((int)(color.G * gC), 0, 255);
+            int b = Mathf.Clamp((int)(color.B * bC), 0, 255);
+
+            return Color.FromArgb(r, g, b);
+        }
+
+        public static int GetColorHue(Color color)
+        {
+            return ColorProcessing.RGBtoHSV(color.R, color.G, color.B).Item1;
+        }
+
+        public static int GetColorSaturation(Color color)
+        {
+            return ColorProcessing.RGBtoHSV(color.R, color.G, color.B).Item2;
+        }
+
+        public static int GetColorValue(Color color)
+        {
+            return ColorProcessing.RGBtoHSV(color.R, color.G, color.B).Item3;
         }
     }
 }

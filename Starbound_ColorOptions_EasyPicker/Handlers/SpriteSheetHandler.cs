@@ -179,7 +179,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
         public int Count { get { return _originalSpriteBitmaps.Count; } }
 
-        public Bitmap GetSpriteBitmap(string spritePart)
+        public Bitmap GetSpritePartBitmap(string spritePart)
         {
             Bitmap result = null;
 
@@ -188,7 +188,7 @@ namespace Starbound_ColorOptions_EasyPicker
             return result;
         }
 
-        public void GetAllSpritePartsForCurrentFrame(string pose, int frame, Rules.Sex sex)
+        public void SetAllSpritePartsForCurrentFrame(string pose, int frame, Rules.Sex sex)
         {
             HumanParts = new Dictionary<string, Bitmap>();
             ArmorParts = new Dictionary<string, Bitmap>();
@@ -224,10 +224,10 @@ namespace Starbound_ColorOptions_EasyPicker
                         {
                             Rectangle rectangle = RulesProcessing.GetFrameRect(spritePart, pose, frame);
 
-                            System.Drawing.Imaging.PixelFormat format = this.GetSpriteBitmap(spritePart).PixelFormat;
+                            System.Drawing.Imaging.PixelFormat format = this.GetSpritePartBitmap(spritePart).PixelFormat;
 
                             // Clone a portion of the Bitmap object.
-                            Bitmap bPart = this.GetSpriteBitmap(spritePart).Clone(rectangle, format);
+                            Bitmap bPart = this.GetSpritePartBitmap(spritePart).Clone(rectangle, format);
 
                             ArmorParts.Add(spritePart, bPart);
                         }

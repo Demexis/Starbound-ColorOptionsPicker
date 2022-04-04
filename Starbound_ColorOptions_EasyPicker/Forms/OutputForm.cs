@@ -64,5 +64,30 @@ namespace Starbound_ColorOptions_EasyPicker
                 }
             }
         }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            PlaceForm();
+            base.OnLoad(e);
+        }
+
+        private void PlaceForm()
+        {
+            //Determine "rightmost" screen
+            Screen rightmost = Screen.AllScreens[0];
+            foreach (Screen screen in Screen.AllScreens)
+            {
+                if (screen.WorkingArea.Right > rightmost.WorkingArea.Right)
+                    rightmost = screen;
+            }
+
+            this.Left = rightmost.WorkingArea.Right - this.Width;
+            this.Top = rightmost.WorkingArea.Bottom - this.Height;
+
+
+
+            this.Left = MainForm.Instance.Left + MainForm.Instance.Width / 2 - this.Width / 2;
+            this.Top = MainForm.Instance.Top + MainForm.Instance.Height / 2 - this.Height / 2;
+        }
     }
 }

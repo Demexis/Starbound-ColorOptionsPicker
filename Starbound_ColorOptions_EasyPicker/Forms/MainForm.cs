@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Starbound_ColorOptions_EasyPicker.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -17,6 +18,8 @@ namespace Starbound_ColorOptions_EasyPicker
 {
     public partial class MainForm : Form
     {
+        public static MainForm Instance;
+
         private static Rules.Sex _sex = Rules.Sex.Male;
 
         private string _lastDirectory = String.Empty;
@@ -26,10 +29,21 @@ namespace Starbound_ColorOptions_EasyPicker
         private SpriteSheetHandler _spriteSheetHandler = new SpriteSheetHandler();
         private ColorTransitionHandler _colorTransitionHandler = new ColorTransitionHandler();
 
+        public ColorTransitionHandler ColorTransitionHandler => _colorTransitionHandler;
+
 
         public MainForm()
         {
             InitializeComponent();
+
+            if(Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                this.Close();
+            }
 
             InitializePictureBox();
 
@@ -46,6 +60,18 @@ namespace Starbound_ColorOptions_EasyPicker
             AsyncUpdateColoredImage();
         }
 
+        public Color[] GetOriginalColors()
+        {
+            Color[] colors = new Color[listView_OriginalSpriteColors.Items.Count];
+
+            for(int i = 0; i < listView_OriginalSpriteColors.Items.Count; i++)
+            {
+                colors[i] = listView_OriginalSpriteColors.Items[i].SubItems[0].BackColor;
+            }
+
+            return colors;
+        }
+
         public void OnChangeDone()
         {
             RemindToSaveFlag = true;
@@ -55,7 +81,7 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             this.Text = AppPreferences.ApplicationName;
 
-            pictureBox1.BackColor = pictureBox_OriginalSprite.BackColor;
+            pictureBox1.BackColor = spriteFrameDisplay_Original.BackColor;
 
             // Get the bitmap.
             Bitmap bm = new Bitmap(Properties.Resources.icon);
@@ -68,8 +94,11 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private void InitializePictureBox()
         {
-            pictureBox_OriginalSprite.BackColor = AppPreferences.SpriteBackColor;
-            pictureBox_ColoredSprite.BackColor = AppPreferences.SpriteBackColor;
+            spriteFrameDisplay_Original.OnLeftClick += OriginalSpriteFrameClick;
+            spriteFrameDisplay_Colored.OnLeftClick += ColoredSpriteFrameClick;
+
+            spriteFrameDisplay_Original.BackColor = AppPreferences.SpriteBackColor;
+            spriteFrameDisplay_Colored.BackColor = AppPreferences.SpriteBackColor;
         }
 
         private void InitializeRadioButtons()
@@ -193,7 +222,7 @@ namespace Starbound_ColorOptions_EasyPicker
             {
                 foreach(string spriteAnimation in SpriteSheetHandler.SpriteAnimations)
                 {
-                    Bitmap orig = _spriteSheetHandler.GetSpriteBitmap(spritePart);
+                    Bitmap orig = _spriteSheetHandler.GetSpritePartBitmap(spritePart);
                     if (orig == null)
                     {
                         break;
@@ -249,7 +278,7 @@ namespace Starbound_ColorOptions_EasyPicker
         //////////////////////////////////
         ///
 
-        private void UpdateTransitionListView()
+        public void UpdateTransitionListView()
         {
             if(Enum.GetNames(typeof(Rules.ColorOptions)).ToList().Contains(comboBox_ColorOption.Text))
             {
@@ -263,56 +292,70 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                 }
             }
+
+            this.label_ColorTransitions.Text = $"Color Transitions ({listView_ColorTransition.Items.Count})";
         }
         
         private void UpdateOriginalSprite()
         {
             if (!String.IsNullOrWhiteSpace(_lastDirectory) && !_dontDraw)
             {
-                _spriteSheetHandler.GetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+                _spriteSheetHandler.SetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
 
-                List<Bitmap> bitmaps = new List<Bitmap>();
-                bitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
-                foreach(string spritePart in SpriteSheetHandler.SpriteParts)
+                List<Bitmap> allBitmaps = new List<Bitmap>();
+                allBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+
+                List<Bitmap> armorBitmaps = new List<Bitmap>();
+                List<Bitmap> mannequinBitmaps = new List<Bitmap>();
+
+                foreach (string spritePart in SpriteSheetHandler.SpriteParts)
                 {
-                    if(spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
+                    if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
                     {
                         continue;
                     }
 
-                    if(_spriteSheetHandler.HumanParts.TryGetValue(spritePart, out Bitmap bH))
+                    if (_spriteSheetHandler.HumanParts.TryGetValue(spritePart, out Bitmap bH))
                     {
                         if (bH != null)
                         {
-                            bitmaps.Add(bH);
+                            bH = (Bitmap)bH.Clone();
+
+                            allBitmaps.Add(bH);
+                            mannequinBitmaps.Add(bH);
                         }
                     }
 
-                    if(_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
+                    if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
                     {
-                        if(bA != null)
+                        if (bA != null)
                         {
-                            bitmaps.Add(bA);
+                            bA = (Bitmap)bA.Clone();
+
+                            allBitmaps.Add(bA);
+                            armorBitmaps.Add(bA);
                         }
                     }
                 }
 
-                Bitmap imageBitmap = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
-
-                imageBitmap = BitmapProcessing.GetInterpolatedBitmap(imageBitmap, this.pictureBox_OriginalSprite.Size);
 
                 // Display the result.
-                this.pictureBox_OriginalSprite.Image = imageBitmap;
+                this.spriteFrameDisplay_Original.AllSprites = allBitmaps.ToArray();
+                this.spriteFrameDisplay_Original.ClickableSprites = armorBitmaps.ToArray();
+                this.spriteFrameDisplay_Original.NonClickableSprites = mannequinBitmaps.ToArray();
+
             }
         }
         
         private void UpdateColoredSprite()
         {
-            _spriteSheetHandler.GetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
+            _spriteSheetHandler.SetAllSpritePartsForCurrentFrame((string)comboBox_Pose.SelectedItem, comboBox_Frame.SelectedIndex, _sex);
 
-            List<Bitmap> bitmaps = new List<Bitmap>();
-            bitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
+            List<Bitmap> allBitmaps = new List<Bitmap>();
+            allBitmaps.Add(SpriteSheetHandler.GetEmptyFrame());
 
+            List<Bitmap> armorBitmaps = new List<Bitmap>();
+            List<Bitmap> mannequinBitmaps = new List<Bitmap>();
 
             foreach (string spritePart in SpriteSheetHandler.SpriteParts)
             {
@@ -325,7 +368,10 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     if (bH != null)
                     {
-                        bitmaps.Add(bH);
+                        bH = (Bitmap)bH.Clone();
+
+                        allBitmaps.Add(bH);
+                        mannequinBitmaps.Add(bH);
                     }
                 }
 
@@ -333,6 +379,8 @@ namespace Starbound_ColorOptions_EasyPicker
                 {
                     if (bA != null)
                     {
+                        bA = (Bitmap)bA.Clone();
+
                         using (Graphics g = Graphics.FromImage(bA))
                         {
                             foreach (ListViewItem item in listView_ColorTransition.Items)
@@ -352,19 +400,17 @@ namespace Starbound_ColorOptions_EasyPicker
                             }
                         }
 
-                        bitmaps.Add(bA);
+                        allBitmaps.Add(bA);
+                        armorBitmaps.Add(bA);
                     }
                 }
             }
 
-            Bitmap mergedBitmaps = BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray());
-
-            Bitmap result = BitmapProcessing.GetInterpolatedBitmap(mergedBitmaps, this.pictureBox_ColoredSprite.Size);
-
             // Display the result.
-            this.pictureBox_ColoredSprite.Image = result;
+            this.spriteFrameDisplay_Colored.AllSprites = allBitmaps.ToArray();
+            this.spriteFrameDisplay_Colored.ClickableSprites = armorBitmaps.ToArray();
+            this.spriteFrameDisplay_Colored.NonClickableSprites = mannequinBitmaps.ToArray();
 
-            mergedBitmaps.Dispose();
         }
 
         private async void AsyncUpdate()
@@ -380,7 +426,7 @@ namespace Starbound_ColorOptions_EasyPicker
                 saveToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
                 colorOptionsToolStripMenuItem.Enabled = (listView_ColorTransition.Items.Count > 0);
 
-                comboBox_ColorOption.Enabled = (listView_ColorTransition.Items.Count > 0);
+                //comboBox_ColorOption.Enabled = (listView_ColorTransition.Items.Count > 0);
 
                 await Task.Delay(50);
             }
@@ -396,11 +442,11 @@ namespace Starbound_ColorOptions_EasyPicker
                     {
                         UpdateColoredSprite();
                     }
-                    catch (Exception e) { /* Ignore */ }
+                    catch (Exception ex) { /* Ignore */ }
                 }
-                else if (pictureBox_ColoredSprite.Image != null)
+                else if (spriteFrameDisplay_Colored.AllSprites != null)
                 {
-                    pictureBox_ColoredSprite.Image = null;
+                    spriteFrameDisplay_Colored.DisposeSprites();
                 }
 
                 await Task.Delay(5);
@@ -1046,17 +1092,9 @@ namespace Starbound_ColorOptions_EasyPicker
             this.listView_OriginalSpriteColors.Items.Clear();
             this.listView_ColorTransition.Items.Clear();
 
-            if(this.pictureBox_OriginalSprite.Image != null)
-            {
-                this.pictureBox_OriginalSprite.Image.Dispose();
-            }
-            this.pictureBox_OriginalSprite.Image = null;
+            this.spriteFrameDisplay_Original.DisposeSprites();
 
-            if (this.pictureBox_ColoredSprite.Image != null)
-            {
-                this.pictureBox_ColoredSprite.Image.Dispose();
-            }
-            this.pictureBox_ColoredSprite.Image = null;
+            this.spriteFrameDisplay_Colored.DisposeSprites();
 
             DisableAllImportantControllers();
 
@@ -1266,106 +1304,65 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        private void pictureBox_OriginalSprite_Click(object sender, EventArgs e)
+        public void OriginalSpriteFrameClick(Color color)
         {
             if (_spriteSheetHandler.Count == 0) return;
-            
+
             this.label_Status.Text = "Trying to take a color from the original sprite...";
 
-            List<Bitmap> bitmaps = new List<Bitmap>();
-            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
-            {
-                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
-                {
-                    continue;
-                }
-
-                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
-                {
-                    if (bA != null)
-                    {
-                        bitmaps.Add(bA);
-                    }
-                }
-            }
-
-
-            Bitmap b = BitmapProcessing.GetInterpolatedBitmap(BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray()), pictureBox_OriginalSprite.Size);
-            //Bitmap b = (Bitmap)pictureBox_OriginalSprite.Image;
-
-            if (b == null) return;
-
-            Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
-
-            if (b.Width < mousePosRelativeToControl.X || b.Height < mousePosRelativeToControl.Y
-                || mousePosRelativeToControl.X < 0 || mousePosRelativeToControl.Y < 0)
-                return;
-
-            Color c = b.GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
-            //Color c = b.GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
-
-            if(c.A > 0)
+            if (color.A > 0)
             {
                 bool skip = false;
-                foreach (ListViewItem existingItem in listView_ColorTransition.Items)
+                for(int i = 0; i < listView_ColorTransition.Items.Count; i++)
                 {
-                    if (existingItem.SubItems[0].BackColor == c) skip = true;
+                    if (listView_ColorTransition.Items[i].SubItems[0].BackColor == color)
+                    {
+                        skip = true;
+                    }
                 }
-                if (skip) return;
 
-                ColorTransitionItem colorTransitionItem = new ColorTransitionItem(c, c);
+                if (!skip)
+                {
+                    ColorTransitionItem colorTransitionItem = new ColorTransitionItem(color, color);
 
-                _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
-                UpdateTransitionListView();
+                    _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
+                    UpdateTransitionListView();
 
-                OnChangeDone();
+                    OnChangeDone();
+                }
+
+                for (int i = 0; i < listView_ColorTransition.Items.Count; i++)
+                {
+                    listView_ColorTransition.Items[i].Selected = false;
+
+                    if (listView_ColorTransition.Items[i].SubItems[0].BackColor == color)
+                    {
+                        listView_ColorTransition.Select();
+                        listView_ColorTransition.Items[i].Selected = true;
+                    }
+                }
             }
 
             this.label_Status.Text = "";
         }
 
-        private void pictureBox_ColoredSprite_Click(object sender, EventArgs e)
+        public void ColoredSpriteFrameClick(Color color)
         {
             if (_spriteSheetHandler.Count == 0) return;
 
             this.label_Status.Text = "Trying to take a color from the colored sprite...";
 
-            List<Bitmap> bitmaps = new List<Bitmap>();
-            foreach (string spritePart in SpriteSheetHandler.SpriteParts)
-            {
-                if (spritePart == "chestm" && _sex != Rules.Sex.Male || spritePart == "chestf" && _sex != Rules.Sex.Female)
-                {
-                    continue;
-                }
-
-                if (_spriteSheetHandler.ArmorParts.TryGetValue(spritePart, out Bitmap bA))
-                {
-                    if (bA != null)
-                    {
-                        bitmaps.Add(bA);
-                    }
-                }
-            }
-
-
-            Bitmap b = BitmapProcessing.GetInterpolatedBitmap(BitmapProcessing.GetMergedBitmaps(bitmaps.ToArray()), pictureBox_OriginalSprite.Size);
-
-            if (b == null) return;
-
-            Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
-
-            Color c = b.GetPixel(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
-
-            if (c.A > 0)
+            if (color.A > 0)
             {
                 bool skip = false;
                 foreach (ListViewItem existingItem in listView_ColorTransition.Items)
                 {
-                    if (existingItem.SubItems[3].BackColor == c) skip = true;
+                    if (existingItem.SubItems[3].BackColor == color) skip = true;
                 }
+
                 if (!skip)
                 {
-                    ColorTransitionItem colorTransitionItem = new ColorTransitionItem(c, c);
+                    ColorTransitionItem colorTransitionItem = new ColorTransitionItem(color, color);
 
                     _colorTransitionHandler[comboBox_ColorOption.Text].Add(colorTransitionItem);
                     UpdateTransitionListView();
@@ -1376,7 +1373,7 @@ namespace Starbound_ColorOptions_EasyPicker
                 List<ListViewItem> items = new List<ListViewItem>();
                 foreach (ListViewItem existingItem in listView_ColorTransition.Items)
                 {
-                    if (existingItem.SubItems[3].BackColor == c)
+                    if (existingItem.SubItems[3].BackColor == color)
                     {
                         items.Add(existingItem);
                     }
@@ -1400,11 +1397,6 @@ namespace Starbound_ColorOptions_EasyPicker
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.label_Status.Text = "Closing...";
-
-            if (File.Exists("tempHtmlDocumentationFile_SBCOP.html"))
-            {
-                File.Delete("tempHtmlDocumentationFile_SBCOP.html");
-            }
 
             if (!RemindToSaveFlag) return;
 
@@ -1518,13 +1510,13 @@ namespace Starbound_ColorOptions_EasyPicker
                     Color c = colorDialog1.Color;
 
                     pictureBox1.BackColor = c;
-                    pictureBox_ColoredSprite.BackColor = c;
-                    pictureBox_OriginalSprite.BackColor = c;
+                    spriteFrameDisplay_Colored.BackgroundColor = c;
+                    spriteFrameDisplay_Original.BackgroundColor = c;
                     break;
                 default:
                     pictureBox1.BackColor = previousColor;
-                    pictureBox_ColoredSprite.BackColor = previousColor;
-                    pictureBox_OriginalSprite.BackColor = previousColor;
+                    spriteFrameDisplay_Colored.BackgroundColor = previousColor;
+                    spriteFrameDisplay_Original.BackgroundColor = previousColor;
                     break;
             }
 
@@ -1537,6 +1529,17 @@ namespace Starbound_ColorOptions_EasyPicker
 
             SettingsForm settingsForm = new SettingsForm();
             settingsForm.ShowDialog();
+
+            this.label_Status.Text = "";
+        }
+
+        private void generateColorTransitionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.label_Status.Text = "Generating the color transitions...";
+
+            ColorTransitionGeneratingForm colorTransitionGeneratingForm = new ColorTransitionGeneratingForm();
+
+            colorTransitionGeneratingForm.ShowDialog();
 
             this.label_Status.Text = "";
         }

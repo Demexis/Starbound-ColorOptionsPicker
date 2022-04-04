@@ -127,7 +127,7 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                     else
                     {
-                        s1 = MissingMath.Clamp(s1 + (int)Math.Floor(s1 * (s / 100f)), 0, 100);
+                        s1 = Mathf.Clamp(s1 + (int)Math.Floor(s1 * (s / 100f)), 0, 100);
                     }
 
                     rgb = ColorProcessing.HSVToRGB(hsv.Item1, s1, hsv.Item3);
@@ -200,7 +200,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int hParse = int.Parse(textBox_Hue.Text);
-                hParse = MissingMath.Clamp(hParse, -180, 180);
+                hParse = Mathf.Clamp(hParse, -180, 180);
                 h = hParse;
             }
             catch (Exception ex) { }
@@ -215,7 +215,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int sParse = int.Parse(textBox_Saturation.Text);
-                sParse = MissingMath.Clamp(sParse, 0, 100);
+                sParse = Mathf.Clamp(sParse, 0, 100);
                 s = sParse;
             }
             catch (Exception ex) { }
@@ -230,7 +230,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int vParse = int.Parse(textBox_Value.Text);
-                vParse = MissingMath.Clamp(vParse, 0, 100);
+                vParse = Mathf.Clamp(vParse, 0, 100);
                 v = vParse;
             }
             catch (Exception ex) { }

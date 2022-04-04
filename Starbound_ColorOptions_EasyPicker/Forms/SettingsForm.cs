@@ -43,7 +43,7 @@ namespace Starbound_ColorOptions_EasyPicker
 
             try
             {
-                AppPreferences.TransparencyCut = (byte)MissingMath.Clamp(int.Parse(textBox_TransparencyCut.Text), 0, 255);
+                AppPreferences.TransparencyCut = (byte)Mathf.Clamp(int.Parse(textBox_TransparencyCut.Text), 0, 255);
                 trackBar_TransparencyCut.Value = AppPreferences.TransparencyCut;
                 textBox_TransparencyCut.Text = AppPreferences.TransparencyCut.ToString();
             }
@@ -89,6 +89,31 @@ namespace Starbound_ColorOptions_EasyPicker
         private void checkBox_IgnoreMasks_CheckedChanged(object sender, EventArgs e)
         {
             AppPreferences.IgnoreMasks = ((CheckBox)sender).Checked;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            PlaceForm();
+            base.OnLoad(e);
+        }
+
+        private void PlaceForm()
+        {
+            //Determine "rightmost" screen
+            Screen rightmost = Screen.AllScreens[0];
+            foreach (Screen screen in Screen.AllScreens)
+            {
+                if (screen.WorkingArea.Right > rightmost.WorkingArea.Right)
+                    rightmost = screen;
+            }
+
+            this.Left = rightmost.WorkingArea.Right - this.Width;
+            this.Top = rightmost.WorkingArea.Bottom - this.Height;
+
+
+
+            this.Left = MainForm.Instance.Left + MainForm.Instance.Width / 2 - this.Width / 2;
+            this.Top = MainForm.Instance.Top + MainForm.Instance.Height / 2 - this.Height / 2;
         }
     }
 }

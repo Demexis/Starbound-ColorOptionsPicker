@@ -32,7 +32,6 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.pictureBox_Original = new System.Windows.Forms.PictureBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox_Blue = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -43,8 +42,6 @@ namespace Starbound_ColorOptions_EasyPicker
             this.textBox_Red = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.trackBar_Red = new System.Windows.Forms.TrackBar();
-            this.pictureBox_Edited = new System.Windows.Forms.PictureBox();
-            this.pictureBox_ColorCircle = new System.Windows.Forms.PictureBox();
             this.button_OK = new System.Windows.Forms.Button();
             this.button_Cancel = new System.Windows.Forms.Button();
             this.textBox_Value = new System.Windows.Forms.TextBox();
@@ -59,16 +56,16 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Hue = new System.Windows.Forms.TrackBar();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.label_Status = new System.Windows.Forms.Label();
+            this.pictureBox_Original = new System.Windows.Forms.PictureBox();
+            this.pictureBox_Edited = new System.Windows.Forms.PictureBox();
+            this.colorCircle1 = new Starbound_ColorOptions_EasyPicker.UserControls.ColorCircle();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Original)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Blue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Green)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Red)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Edited)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_ColorCircle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Value)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Saturation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Hue)).BeginInit();
@@ -76,6 +73,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Original)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Edited)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -105,7 +104,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.pictureBox_ColorCircle);
+            this.splitContainer1.Panel2.Controls.Add(this.colorCircle1);
             this.splitContainer1.Panel2.Controls.Add(this.button_OK);
             this.splitContainer1.Panel2.Controls.Add(this.button_Cancel);
             this.splitContainer1.Panel2.Controls.Add(this.textBox_Value);
@@ -139,16 +138,6 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label9.Size = new System.Drawing.Size(26, 13);
             this.label9.TabIndex = 20;
             this.label9.Text = "Old:";
-            // 
-            // pictureBox_Original
-            // 
-            this.pictureBox_Original.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pictureBox_Original.Location = new System.Drawing.Point(3, 32);
-            this.pictureBox_Original.Name = "pictureBox_Original";
-            this.pictureBox_Original.Size = new System.Drawing.Size(91, 180);
-            this.pictureBox_Original.TabIndex = 19;
-            this.pictureBox_Original.TabStop = false;
-            this.pictureBox_Original.Click += new System.EventHandler(this.pictureBox_Original_Click);
             // 
             // label4
             // 
@@ -185,7 +174,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Blue.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Blue.TabIndex = 7;
             this.trackBar_Blue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Blue.Scroll += new System.EventHandler(this.trackBar_Blue_Scroll);
+            this.trackBar_Blue.Scroll += new System.EventHandler(this.trackBar_RGB_Scroll);
             // 
             // textBox_Green
             // 
@@ -213,7 +202,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Green.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Green.TabIndex = 4;
             this.trackBar_Green.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Green.Scroll += new System.EventHandler(this.trackBar_Green_Scroll);
+            this.trackBar_Green.Scroll += new System.EventHandler(this.trackBar_RGB_Scroll);
             // 
             // textBox_Red
             // 
@@ -241,28 +230,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Red.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Red.TabIndex = 1;
             this.trackBar_Red.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Red.Scroll += new System.EventHandler(this.trackBar_Red_Scroll);
-            // 
-            // pictureBox_Edited
-            // 
-            this.pictureBox_Edited.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pictureBox_Edited.Location = new System.Drawing.Point(94, 32);
-            this.pictureBox_Edited.Name = "pictureBox_Edited";
-            this.pictureBox_Edited.Size = new System.Drawing.Size(91, 180);
-            this.pictureBox_Edited.TabIndex = 0;
-            this.pictureBox_Edited.TabStop = false;
-            // 
-            // pictureBox_ColorCircle
-            // 
-            this.pictureBox_ColorCircle.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox_ColorCircle.Name = "pictureBox_ColorCircle";
-            this.pictureBox_ColorCircle.Size = new System.Drawing.Size(182, 182);
-            this.pictureBox_ColorCircle.TabIndex = 21;
-            this.pictureBox_ColorCircle.TabStop = false;
-            this.pictureBox_ColorCircle.Click += new System.EventHandler(this.pictureBox_ColorCircle_Click);
-            this.pictureBox_ColorCircle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
-            this.pictureBox_ColorCircle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
-            this.pictureBox_ColorCircle.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            this.trackBar_Red.Scroll += new System.EventHandler(this.trackBar_RGB_Scroll);
             // 
             // button_OK
             // 
@@ -310,7 +278,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Value.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Value.TabIndex = 16;
             this.trackBar_Value.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Value.Scroll += new System.EventHandler(this.trackBar_Value_Scroll);
+            this.trackBar_Value.Scroll += new System.EventHandler(this.trackBar_HSV_Scroll);
             // 
             // textBox_Saturation
             // 
@@ -338,7 +306,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Saturation.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Saturation.TabIndex = 13;
             this.trackBar_Saturation.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Saturation.Scroll += new System.EventHandler(this.trackBar_Saturation_Scroll);
+            this.trackBar_Saturation.Scroll += new System.EventHandler(this.trackBar_HSV_Scroll);
             // 
             // textBox_Hue
             // 
@@ -375,7 +343,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.trackBar_Hue.Size = new System.Drawing.Size(164, 45);
             this.trackBar_Hue.TabIndex = 10;
             this.trackBar_Hue.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar_Hue.Scroll += new System.EventHandler(this.trackBar_Hue_Scroll);
+            this.trackBar_Hue.Scroll += new System.EventHandler(this.trackBar_HSV_Scroll);
             // 
             // splitContainer2
             // 
@@ -406,6 +374,33 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label_Status.TabIndex = 0;
             this.label_Status.Text = "Status: ";
             // 
+            // pictureBox_Original
+            // 
+            this.pictureBox_Original.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox_Original.Location = new System.Drawing.Point(3, 32);
+            this.pictureBox_Original.Name = "pictureBox_Original";
+            this.pictureBox_Original.Size = new System.Drawing.Size(91, 180);
+            this.pictureBox_Original.TabIndex = 19;
+            this.pictureBox_Original.TabStop = false;
+            this.pictureBox_Original.Click += new System.EventHandler(this.pictureBox_Original_Click);
+            // 
+            // pictureBox_Edited
+            // 
+            this.pictureBox_Edited.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox_Edited.Location = new System.Drawing.Point(94, 32);
+            this.pictureBox_Edited.Name = "pictureBox_Edited";
+            this.pictureBox_Edited.Size = new System.Drawing.Size(91, 180);
+            this.pictureBox_Edited.TabIndex = 0;
+            this.pictureBox_Edited.TabStop = false;
+            // 
+            // colorCircle1
+            // 
+            this.colorCircle1.CurrentColor = System.Drawing.Color.Empty;
+            this.colorCircle1.Location = new System.Drawing.Point(3, 3);
+            this.colorCircle1.Name = "colorCircle1";
+            this.colorCircle1.Size = new System.Drawing.Size(182, 182);
+            this.colorCircle1.TabIndex = 21;
+            // 
             // ColorTransitionEditingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -423,12 +418,9 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Original)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Blue)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Green)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Red)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Edited)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_ColorCircle)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Value)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Saturation)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar_Hue)).EndInit();
@@ -437,6 +429,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer2.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Original)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_Edited)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -470,8 +464,8 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.Button button_Cancel;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.PictureBox pictureBox_ColorCircle;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.Label label_Status;
+        private UserControls.ColorCircle colorCircle1;
     }
 }

@@ -65,7 +65,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>iconLarge.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\iconLarge.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=5.7.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -239,39 +239,45 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppPreferences.cs" />
+    <Compile Include="Forms\ColorTransitionGeneratingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ColorTransitionGeneratingForm.Designer.cs">
+      <DependentUpon>ColorTransitionGeneratingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Processing\BitmapProcessing.cs" />
     <Compile Include="Processing\ColorProcessing.cs" />
-    <Compile Include="ColorTransitionEditingForm.cs">
+    <Compile Include="Forms\ColorTransitionEditingForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ColorTransitionEditingForm.Designer.cs">
+    <Compile Include="Forms\ColorTransitionEditingForm.Designer.cs">
       <DependentUpon>ColorTransitionEditingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ColorTransitionEditingFormHSV.cs">
+    <Compile Include="Forms\ColorTransitionEditingFormHSV.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ColorTransitionEditingFormHSV.Designer.cs">
+    <Compile Include="Forms\ColorTransitionEditingFormHSV.Designer.cs">
       <DependentUpon>ColorTransitionEditingFormHSV.cs</DependentUpon>
     </Compile>
     <Compile Include="Handlers\ColorTransitionHandler.cs" />
     <Compile Include="Models\ColorTransitionItem.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Forms\MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MergeRelpaceOrCancelForm.cs">
+    <Compile Include="Forms\MergeRelpaceOrCancelForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MergeRelpaceOrCancelForm.Designer.cs">
+    <Compile Include="Forms\MergeRelpaceOrCancelForm.Designer.cs">
       <DependentUpon>MergeRelpaceOrCancelForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MissingMath.cs" />
-    <Compile Include="OutputForm.cs">
+    <Compile Include="Miscellaneous\Mathf.cs" />
+    <Compile Include="Forms\OutputForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OutputForm.Designer.cs">
+    <Compile Include="Forms\OutputForm.Designer.cs">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -284,25 +290,40 @@
     <Compile Include="Rules.cs" />
     <Compile Include="Processing\RulesProcessing.cs" />
     <Compile Include="Handlers\SpriteSheetHandler.cs" />
-    <Compile Include="SettingsForm.cs">
+    <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SettingsForm.Designer.cs">
+    <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ColorTransitionEditingForm.resx">
+    <Compile Include="UserControls\ColorCircle.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ColorCircle.Designer.cs">
+      <DependentUpon>ColorCircle.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\SpriteFrameDisplay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\SpriteFrameDisplay.Designer.cs">
+      <DependentUpon>SpriteFrameDisplay.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\ColorTransitionEditingForm.resx">
       <DependentUpon>ColorTransitionEditingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ColorTransitionEditingFormHSV.resx">
+    <EmbeddedResource Include="Forms\ColorTransitionEditingFormHSV.resx">
       <DependentUpon>ColorTransitionEditingFormHSV.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ColorTransitionGeneratingForm.resx">
+      <DependentUpon>ColorTransitionGeneratingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MergeRelpaceOrCancelForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\MergeRelpaceOrCancelForm.resx">
       <DependentUpon>MergeRelpaceOrCancelForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OutputForm.resx">
+    <EmbeddedResource Include="Forms\OutputForm.resx">
       <DependentUpon>OutputForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -319,8 +340,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ResImages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="SettingsForm.resx">
+    <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\ColorCircle.resx">
+      <DependentUpon>ColorCircle.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControls\SpriteFrameDisplay.resx">
+      <DependentUpon>SpriteFrameDisplay.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -374,9 +401,9 @@
     <None Include="Resources\planet_icon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="icon.ico" />
-    <Content Include="iconLarge.ico" />
-    <Content Include="planet_icon.ico" />
+    <Content Include="Icons\icon.ico" />
+    <Content Include="Icons\iconLarge.ico" />
+    <Content Include="Icons\planet_icon.ico" />
     <None Include="Resources\human_chestm.png" />
     <None Include="Resources\human_chestf.png" />
     <None Include="Resources\human_pants.png" />

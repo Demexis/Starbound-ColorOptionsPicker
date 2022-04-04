@@ -43,6 +43,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.generateColorTransitionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gitHubURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,10 +53,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox_OriginalSprite = new System.Windows.Forms.PictureBox();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
-            this.pictureBox_ColoredSprite = new System.Windows.Forms.PictureBox();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
@@ -80,7 +80,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.comboBox_ColorOption = new System.Windows.Forms.ComboBox();
             this.splitContainer7 = new System.Windows.Forms.SplitContainer();
             this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label6 = new System.Windows.Forms.Label();
+            this.label_ColorTransitions = new System.Windows.Forms.Label();
             this.listView_ColorTransition = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -92,7 +92,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.button_ColorTransition_Edit = new System.Windows.Forms.Button();
             this.button_ColorTransition_EditHSV = new System.Windows.Forms.Button();
             this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label7 = new System.Windows.Forms.Label();
+            this.label_SpriteColors = new System.Windows.Forms.Label();
             this.listView_OriginalSpriteColors = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -100,6 +100,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.splitContainer8 = new System.Windows.Forms.SplitContainer();
             this.label_Status = new System.Windows.Forms.Label();
+            this.spriteFrameDisplay_Original = new Starbound_ColorOptions_EasyPicker.UserControls.SpriteFrameDisplay();
+            this.spriteFrameDisplay_Colored = new Starbound_ColorOptions_EasyPicker.UserControls.SpriteFrameDisplay();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -114,9 +116,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_OriginalSprite)).BeginInit();
             this.flowLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_ColoredSprite)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
             this.splitContainer4.Panel1.SuspendLayout();
             this.splitContainer4.Panel2.SuspendLayout();
@@ -154,6 +154,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.toolsToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -256,6 +257,21 @@ namespace Starbound_ColorOptions_EasyPicker
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // toolsToolStripMenuItem
+            // 
+            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.generateColorTransitionsToolStripMenuItem});
+            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(46, 20);
+            this.toolsToolStripMenuItem.Text = "Tools";
+            // 
+            // generateColorTransitionsToolStripMenuItem
+            // 
+            this.generateColorTransitionsToolStripMenuItem.Name = "generateColorTransitionsToolStripMenuItem";
+            this.generateColorTransitionsToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.generateColorTransitionsToolStripMenuItem.Text = "Generate Color Transitions...";
+            this.generateColorTransitionsToolStripMenuItem.Click += new System.EventHandler(this.generateColorTransitionsToolStripMenuItem_Click);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -340,7 +356,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.label1);
-            this.flowLayoutPanel1.Controls.Add(this.pictureBox_OriginalSprite);
+            this.flowLayoutPanel1.Controls.Add(this.spriteFrameDisplay_Original);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -359,21 +375,10 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label1.Text = "Oriiginal Sprite";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // pictureBox_OriginalSprite
-            // 
-            this.pictureBox_OriginalSprite.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.pictureBox_OriginalSprite.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox_OriginalSprite.Location = new System.Drawing.Point(3, 16);
-            this.pictureBox_OriginalSprite.Name = "pictureBox_OriginalSprite";
-            this.pictureBox_OriginalSprite.Size = new System.Drawing.Size(249, 249);
-            this.pictureBox_OriginalSprite.TabIndex = 1;
-            this.pictureBox_OriginalSprite.TabStop = false;
-            this.pictureBox_OriginalSprite.Click += new System.EventHandler(this.pictureBox_OriginalSprite_Click);
-            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.label2);
-            this.flowLayoutPanel2.Controls.Add(this.pictureBox_ColoredSprite);
+            this.flowLayoutPanel2.Controls.Add(this.spriteFrameDisplay_Colored);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
@@ -390,17 +395,7 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label2.Size = new System.Drawing.Size(73, 13);
             this.label2.TabIndex = 0;
             this.label2.Text = "Colored Sprite";
-            // 
-            // pictureBox_ColoredSprite
-            // 
-            this.pictureBox_ColoredSprite.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.pictureBox_ColoredSprite.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox_ColoredSprite.Location = new System.Drawing.Point(3, 16);
-            this.pictureBox_ColoredSprite.Name = "pictureBox_ColoredSprite";
-            this.pictureBox_ColoredSprite.Size = new System.Drawing.Size(249, 249);
-            this.pictureBox_ColoredSprite.TabIndex = 1;
-            this.pictureBox_ColoredSprite.TabStop = false;
-            this.pictureBox_ColoredSprite.Click += new System.EventHandler(this.pictureBox_ColoredSprite_Click);
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // splitContainer4
             // 
@@ -690,7 +685,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // flowLayoutPanel7
             // 
-            this.flowLayoutPanel7.Controls.Add(this.label6);
+            this.flowLayoutPanel7.Controls.Add(this.label_ColorTransitions);
             this.flowLayoutPanel7.Controls.Add(this.listView_ColorTransition);
             this.flowLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel7.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
@@ -699,14 +694,14 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel7.Size = new System.Drawing.Size(287, 151);
             this.flowLayoutPanel7.TabIndex = 0;
             // 
-            // label6
+            // label_ColorTransitions
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(85, 13);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "Color Transitions";
+            this.label_ColorTransitions.AutoSize = true;
+            this.label_ColorTransitions.Location = new System.Drawing.Point(3, 0);
+            this.label_ColorTransitions.Name = "label_ColorTransitions";
+            this.label_ColorTransitions.Size = new System.Drawing.Size(85, 13);
+            this.label_ColorTransitions.TabIndex = 2;
+            this.label_ColorTransitions.Text = "Color Transitions";
             // 
             // listView_ColorTransition
             // 
@@ -798,7 +793,7 @@ namespace Starbound_ColorOptions_EasyPicker
             // 
             // flowLayoutPanel8
             // 
-            this.flowLayoutPanel8.Controls.Add(this.label7);
+            this.flowLayoutPanel8.Controls.Add(this.label_SpriteColors);
             this.flowLayoutPanel8.Controls.Add(this.listView_OriginalSpriteColors);
             this.flowLayoutPanel8.Controls.Add(this.button_ColorTransition_Add);
             this.flowLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -808,14 +803,14 @@ namespace Starbound_ColorOptions_EasyPicker
             this.flowLayoutPanel8.Size = new System.Drawing.Size(287, 176);
             this.flowLayoutPanel8.TabIndex = 0;
             // 
-            // label7
+            // label_SpriteColors
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(111, 13);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Original Sprite\'s Colors";
+            this.label_SpriteColors.AutoSize = true;
+            this.label_SpriteColors.Location = new System.Drawing.Point(3, 0);
+            this.label_SpriteColors.Name = "label_SpriteColors";
+            this.label_SpriteColors.Size = new System.Drawing.Size(111, 13);
+            this.label_SpriteColors.TabIndex = 0;
+            this.label_SpriteColors.Text = "Original Sprite\'s Colors";
             // 
             // listView_OriginalSpriteColors
             // 
@@ -889,6 +884,30 @@ namespace Starbound_ColorOptions_EasyPicker
             this.label_Status.TabIndex = 0;
             this.label_Status.Text = "Status:";
             // 
+            // spriteFrameDisplay_Original
+            // 
+            this.spriteFrameDisplay_Original.AllSprites = null;
+            this.spriteFrameDisplay_Original.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.spriteFrameDisplay_Original.ClickableSprites = null;
+            this.spriteFrameDisplay_Original.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.spriteFrameDisplay_Original.Location = new System.Drawing.Point(3, 16);
+            this.spriteFrameDisplay_Original.Name = "spriteFrameDisplay_Original";
+            this.spriteFrameDisplay_Original.NonClickableSprites = null;
+            this.spriteFrameDisplay_Original.Size = new System.Drawing.Size(249, 249);
+            this.spriteFrameDisplay_Original.TabIndex = 1;
+            // 
+            // spriteFrameDisplay_Colored
+            // 
+            this.spriteFrameDisplay_Colored.AllSprites = null;
+            this.spriteFrameDisplay_Colored.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.spriteFrameDisplay_Colored.ClickableSprites = null;
+            this.spriteFrameDisplay_Colored.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.spriteFrameDisplay_Colored.Location = new System.Drawing.Point(3, 16);
+            this.spriteFrameDisplay_Colored.Name = "spriteFrameDisplay_Colored";
+            this.spriteFrameDisplay_Colored.NonClickableSprites = null;
+            this.spriteFrameDisplay_Colored.Size = new System.Drawing.Size(249, 249);
+            this.spriteFrameDisplay_Colored.TabIndex = 1;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -919,10 +938,8 @@ namespace Starbound_ColorOptions_EasyPicker
             this.splitContainer3.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_OriginalSprite)).EndInit();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_ColoredSprite)).EndInit();
             this.splitContainer4.Panel1.ResumeLayout(false);
             this.splitContainer4.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
@@ -979,10 +996,8 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox_OriginalSprite;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.PictureBox pictureBox_ColoredSprite;
         private System.Windows.Forms.SplitContainer splitContainer4;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.Label label3;
@@ -1003,7 +1018,7 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel8;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label_SpriteColors;
         private System.Windows.Forms.ListView listView_OriginalSpriteColors;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
@@ -1015,7 +1030,7 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.ColumnHeader columnHeader6;
         private System.Windows.Forms.Button button_ColorTransition_Edit;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label_ColorTransitions;
         private System.Windows.Forms.RadioButton radioButton_Male;
         private System.Windows.Forms.RadioButton radioButton_Female;
         private System.Windows.Forms.Label label8;
@@ -1041,6 +1056,10 @@ namespace Starbound_ColorOptions_EasyPicker
         private System.Windows.Forms.Label label_Status;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label_ShowMannequin;
+        private UserControls.SpriteFrameDisplay spriteFrameDisplay_Original;
+        private UserControls.SpriteFrameDisplay spriteFrameDisplay_Colored;
+        private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem generateColorTransitionsToolStripMenuItem;
     }
 }
 

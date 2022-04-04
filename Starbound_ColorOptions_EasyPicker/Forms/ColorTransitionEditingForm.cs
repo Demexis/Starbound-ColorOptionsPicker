@@ -19,13 +19,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
         private int r, g, b, h, s, v;
 
-        private float _selectPointCircleRadius = 6;
-
         private bool _saveFlag = false;
 
-        private bool _selectColorCircleFlag = false;
-
-        private Bitmap colorCircleBitmap;
 
         public bool TryRemoveListViewItems(params ListViewItem[] items)
         {
@@ -45,42 +40,19 @@ namespace Starbound_ColorOptions_EasyPicker
             return atLeastOneRemoved;
         }
 
-        private void trackBar_Hue_Scroll(object sender, EventArgs e)
+        private void trackBar_HSV_Scroll(object sender, EventArgs e)
         {
             h = trackBar_Hue.Value;
-
-            OnHSVTrackBarChanged();
-        }
-
-        private void trackBar_Saturation_Scroll(object sender, EventArgs e)
-        {
             s = trackBar_Saturation.Value;
-
-            OnHSVTrackBarChanged();
-        }
-
-        private void trackBar_Value_Scroll(object sender, EventArgs e)
-        {
             v = trackBar_Value.Value;
 
             OnHSVTrackBarChanged();
         }
 
-        private void trackBar_Red_Scroll(object sender, EventArgs e)
+        private void trackBar_RGB_Scroll(object sender, EventArgs e)
         {
             r = trackBar_Red.Value;
-
-            OnRGBTrackBarChanged();
-        }
-
-        private void trackBar_Green_Scroll(object sender, EventArgs e)
-        {
             g = trackBar_Green.Value;
-
-            OnRGBTrackBarChanged();
-        }
-        private void trackBar_Blue_Scroll(object sender, EventArgs e)
-        {
             b = trackBar_Blue.Value;
 
             OnRGBTrackBarChanged();
@@ -126,7 +98,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int rParse = int.Parse(textBox_Red.Text);
-                rParse = MissingMath.Clamp(rParse, 0, 255);
+                rParse = Mathf.Clamp(rParse, 0, 255);
                 r = rParse;
             }
             catch (Exception ex) { }
@@ -141,7 +113,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int gParse = int.Parse(textBox_Green.Text);
-                gParse = MissingMath.Clamp(gParse, 0, 255);
+                gParse = Mathf.Clamp(gParse, 0, 255);
                 g = gParse;
             }
             catch (Exception ex) { }
@@ -156,7 +128,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int bParse = int.Parse(textBox_Blue.Text);
-                bParse = MissingMath.Clamp(bParse, 0, 255);
+                bParse = Mathf.Clamp(bParse, 0, 255);
                 b = bParse;
             }
             catch (Exception ex) { }
@@ -171,7 +143,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int hParse = int.Parse(textBox_Hue.Text);
-                hParse = MissingMath.Clamp(hParse, 0, 360);
+                hParse = Mathf.Clamp(hParse, 0, 360);
                 h = hParse;
             }
             catch (Exception ex) { }
@@ -186,7 +158,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int sParse = int.Parse(textBox_Saturation.Text);
-                sParse = MissingMath.Clamp(sParse, 0, 100);
+                sParse = Mathf.Clamp(sParse, 0, 100);
                 s = sParse;
             }
             catch (Exception ex) { }
@@ -201,7 +173,7 @@ namespace Starbound_ColorOptions_EasyPicker
             try
             {
                 int vParse = int.Parse(textBox_Value.Text);
-                vParse = MissingMath.Clamp(vParse, 0, 100);
+                vParse = Mathf.Clamp(vParse, 0, 100);
                 v = vParse;
             }
             catch (Exception ex) { }
@@ -231,8 +203,8 @@ namespace Starbound_ColorOptions_EasyPicker
             textBox_Value.Text = v.ToString();
 
             Color c = Color.FromArgb(r, g, b);
-            
-            DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(c), 5);
+
+            colorCircle1.CurrentColor = c;
 
             this.pictureBox_Edited.BackColor = c;
 
@@ -248,8 +220,6 @@ namespace Starbound_ColorOptions_EasyPicker
             InitializeComponent();
 
             this.label_Status.Text = "";
-
-            colorCircleBitmap = GetColorCircleBitmap();
 
             this._parent = parent;
             this._items = items.ToList();
@@ -285,7 +255,16 @@ namespace Starbound_ColorOptions_EasyPicker
             b = colors[0].B;
 
             OnRGBTrackBarChanged();
-            DrawSelectPointOnColorCircle(GetPointOnCircleFromColor(colors[0]), _selectPointCircleRadius);
+
+            colorCircle1.CurrentColor = colors[0];
+            colorCircle1.OnHueAndSaturationChange += (h, s) =>
+            {
+                this.h = h;
+                this.s = s;
+                //v = v; // Value isn't changing
+
+                OnHSVTrackBarChanged();
+            };
 
 
             // Get the bitmap.
@@ -293,93 +272,6 @@ namespace Starbound_ColorOptions_EasyPicker
 
             // Convert to an icon and use for the form's icon.
             this.Icon = Icon.FromHandle(bm.GetHicon());
-        }
-
-        private void pictureBox_ColorCircle_Click(object sender, EventArgs e)
-        {
-            Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
-
-            if (MissingMath.IsInsideCircle(mousePosRelativeToControl.X, mousePosRelativeToControl.Y, ((Control)sender).Width, ((Control)sender).Height))
-            {
-                OnSelectPointChange(mousePosRelativeToControl);
-                DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
-            }
-        }
-
-        private void pictureBox1_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
-        {
-            if(_selectColorCircleFlag)
-            {
-                Point mousePosRelativeToControl = ((Control)sender).PointToClient(System.Windows.Forms.Cursor.Position);
-
-                if (MissingMath.IsInsideCircle(mousePosRelativeToControl.X, mousePosRelativeToControl.Y, ((Control)sender).Width, ((Control)sender).Height))
-                {
-                    OnSelectPointChange(mousePosRelativeToControl);
-                    DrawSelectPointOnColorCircle(mousePosRelativeToControl, _selectPointCircleRadius);
-                }
-            }
-        }
-
-        private void OnSelectPointChange(Point mousePosRelativeToControl)
-        {
-            Color c = GetColorFromCirclePoint(mousePosRelativeToControl.X, mousePosRelativeToControl.Y);
-
-            Tuple<int, int, int> hsv = ColorProcessing.RGBtoHSV(c.R, c.G, c.B);
-
-            h = hsv.Item1;
-            s = hsv.Item2;
-            //Console.WriteLine("Value: " + v.ToString());
-            //v = v; // Value isn't changing
-
-            OnHSVTrackBarChanged();
-        }
-
-        private void DrawSelectPointOnColorCircle(Point mousePos, float radius)
-        {
-            // TODO >: Remove selection out of circle
-
-            DrawColorCircle();
-
-            Bitmap bitmap = (Bitmap)pictureBox_ColorCircle.Image;
-
-            bool outOfBounds = false;
-
-            for (int i = 0; i < 360; i += 6)
-            {
-                double theta = i * Math.PI / 180;
-                int dx = (int)(radius * Math.Cos(theta));
-                int dy = (int)(radius * Math.Sin(theta));
-
-                outOfBounds = (mousePos.X + dx < 0 || mousePos.X + dx >= pictureBox_ColorCircle.Width)
-                    || (mousePos.Y + dy < 0 || mousePos.Y + dy >= pictureBox_ColorCircle.Height);
-
-                if(!outOfBounds)
-                {
-                    bitmap.SetPixel(mousePos.X + dx, mousePos.Y + dy, Color.Black);
-                }
-
-                //Console.WriteLine(dx.ToString() + " " + dy.ToString());
-            }
-
-            outOfBounds = (mousePos.X < 0 || mousePos.X >= pictureBox_ColorCircle.Width)
-                    || (mousePos.Y < 0 || mousePos.Y >= pictureBox_ColorCircle.Height);
-
-            if (!outOfBounds)
-            {
-                bitmap.SetPixel(mousePos.X, mousePos.Y, Color.Black);
-            }
-
-            pictureBox_ColorCircle.Image = bitmap;
-        }
-
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            _selectColorCircleFlag = true;
-        }
-
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
-        {
-            _selectColorCircleFlag = false;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -426,82 +318,6 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             PlaceForm();
             base.OnLoad(e);
-        }
-
-        private Bitmap GetColorCircleBitmap()
-        {
-            float radius = pictureBox_ColorCircle.Height / 2;
-
-            Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
-
-            Bitmap circleBitmap = new Bitmap(pictureBox_ColorCircle.Width, pictureBox_ColorCircle.Height);
-
-            for (int i = 0; i < pictureBox_ColorCircle.Width; i++)
-            {
-                for (int j = 0; j < pictureBox_ColorCircle.Height; j++)
-                {
-                    if (Math.Pow(i - center.X, 2) + Math.Pow(j - center.Y, 2) <= Math.Pow(radius, 2))
-                    {
-                        circleBitmap.SetPixel(i, j, GetColorFromCirclePoint(i, j));
-                    }
-                }
-            }
-
-            return circleBitmap;
-        }
-
-        private void DrawColorCircle()
-        {
-            Bitmap circleBitmap = colorCircleBitmap.Clone(new Rectangle(0, 0, colorCircleBitmap.Width, colorCircleBitmap.Height), 
-                                                          colorCircleBitmap.PixelFormat);
-
-            pictureBox_ColorCircle.Image = circleBitmap;
-        }
-
-        private Color GetColorFromCirclePoint(int x, int y)
-        {
-            if(MissingMath.IsInsideCircle(x, y, pictureBox_ColorCircle.Width, pictureBox_ColorCircle.Height))
-            {
-                float radius = pictureBox_ColorCircle.Width / 2f;
-                Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
-
-                double radians = Math.Atan2(y - center.Y, x - center.X);
-
-                int hue = (int)((radians) / (2 * Math.PI) * 360);
-                if (hue < 0) hue += 360;
-
-                Color c = ColorProcessing.GetColorFromHue(hue);
-
-                double inner_radius = Math.Sqrt(Math.Pow(x - center.X, 2) + Math.Pow(y - center.Y, 2));
-
-                int red = c.R + (int)Math.Floor((255 - c.R) * (1.0f - (inner_radius / radius)));
-                int green = c.G + (int)Math.Floor((255 - c.G) * (1.0f - (inner_radius / radius)));
-                int blue = c.B + (int)Math.Floor((255 - c.B) * (1.0f - (inner_radius / radius)));
-
-                c = Color.FromArgb(red, green, blue);
-
-                return c;
-            }
-            else
-            {
-                return pictureBox_Edited.BackColor;
-            }
-        }
-
-        private Point GetPointOnCircleFromColor(Color c)
-        {
-            Point center = new Point(pictureBox_ColorCircle.Width / 2, pictureBox_ColorCircle.Height / 2);
-
-            double radius = s / 100f * pictureBox_ColorCircle.Width / 2f;
-
-            double radians = h / 360f * Math.PI * 2;
-            double degrees = radians * (180 / Math.PI);
-
-            double theta = degrees * Math.PI / 180;
-            int dx = (int)(radius * Math.Cos(theta));
-            int dy = (int)(radius * Math.Sin(theta));
-
-            return new Point(dx + center.X, dy + center.Y);
         }
 
         private void PlaceForm()

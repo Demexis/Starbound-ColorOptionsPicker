@@ -213,6 +213,8 @@ namespace Starbound_ColorOptions_EasyPicker
                 item.SubItems[3].BackColor = c;
                 item.SubItems[4].Text = ColorProcessing.HexConverter(c);
             }
+
+            MainForm.Instance.SetFlagToUpdateColoredImage();
         }
 
         public ColorTransitionEditingForm(MainForm parent, ListViewItem[] items)
@@ -297,6 +299,8 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                 }
             }
+
+            MainForm.Instance.SetFlagToUpdateColoredImage();
 
             base.OnClosing(e);
         }

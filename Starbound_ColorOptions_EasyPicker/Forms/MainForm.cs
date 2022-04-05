@@ -25,6 +25,7 @@ namespace Starbound_ColorOptions_EasyPicker
         private string _lastDirectory = String.Empty;
         private bool _dontDraw;
         public bool RemindToSaveFlag = false;
+        private bool _updateColoredImage;
 
         private SpriteSheetHandler _spriteSheetHandler = new SpriteSheetHandler();
         private ColorTransitionHandler _colorTransitionHandler = new ColorTransitionHandler();
@@ -72,10 +73,8 @@ namespace Starbound_ColorOptions_EasyPicker
             return colors;
         }
 
-        public void OnChangeDone()
-        {
-            RemindToSaveFlag = true;
-        }
+
+        #region Initialization
 
         private void InitializeMiscellaneous()
         {
@@ -123,6 +122,16 @@ namespace Starbound_ColorOptions_EasyPicker
             OnPoseChange();
         }
 
+        #endregion
+
+
+        public void OnChangeDone()
+        {
+            RemindToSaveFlag = true;
+
+            SetFlagToUpdateColoredImage();
+        }
+
         private void OnPoseChange()
         {
             _dontDraw = true;
@@ -138,6 +147,8 @@ namespace Starbound_ColorOptions_EasyPicker
 
             _dontDraw = false;
             comboBox_Frame.SelectedIndex = 0;
+
+            SetFlagToUpdateColoredImage();
         }
 
         private void DisableAllImportantControllers()
@@ -158,6 +169,8 @@ namespace Starbound_ColorOptions_EasyPicker
             checkBox_ShowMannequin.Enabled = false;
             label_ShowMannequin.Enabled = false;
 
+            generateColorTransitionsToolStripMenuItem.Enabled = false;
+
             this.label_Status.Text = "";
         }
 
@@ -176,6 +189,10 @@ namespace Starbound_ColorOptions_EasyPicker
             closeToolStripMenuItem.Enabled = true;
             checkBox_ShowMannequin.Enabled = true;
             label_ShowMannequin.Enabled = true;
+
+            generateColorTransitionsToolStripMenuItem.Enabled = true;
+
+            SetFlagToUpdateColoredImage();
 
             this.label_Status.Text = "";
         }
@@ -278,6 +295,8 @@ namespace Starbound_ColorOptions_EasyPicker
         //////////////////////////////////
         ///
 
+        #region Updates
+
         public void UpdateTransitionListView()
         {
             if(Enum.GetNames(typeof(Rules.ColorOptions)).ToList().Contains(comboBox_ColorOption.Text))
@@ -292,6 +311,8 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                 }
             }
+
+            SetFlagToUpdateColoredImage();
 
             this.label_ColorTransitions.Text = $"Color Transitions ({listView_ColorTransition.Items.Count})";
         }
@@ -345,6 +366,9 @@ namespace Starbound_ColorOptions_EasyPicker
                 this.spriteFrameDisplay_Original.NonClickableSprites = mannequinBitmaps.ToArray();
 
             }
+
+            this.label_SpriteColors.Text = $"Original Sprite's Colors ({listView_OriginalSpriteColors.Items.Count})";
+            SetFlagToUpdateColoredImage();
         }
         
         private void UpdateColoredSprite()
@@ -432,10 +456,26 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
+
+        public void SetFlagToUpdateColoredImage()
+        {
+            _updateColoredImage = true;
+        }
+
         private async void AsyncUpdateColoredImage()
         {
             while (true)
             {
+                if(_updateColoredImage)
+                {
+                    _updateColoredImage = false;
+                }
+                else
+                {
+                    await Task.Delay(5);
+                    continue;
+                }
+
                 if (_spriteSheetHandler.Count > 0)
                 {
                     try
@@ -453,13 +493,15 @@ namespace Starbound_ColorOptions_EasyPicker
             }
         }
 
-        
+        #endregion
 
 
         //////////////////////////////////
         /*            Events            */
         //////////////////////////////////
         /**/
+
+        #region Events
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -944,6 +986,7 @@ namespace Starbound_ColorOptions_EasyPicker
         {
             this.label_Status.Text = "Changing frame...";
             UpdateOriginalSprite();
+            SetFlagToUpdateColoredImage();
             this.label_Status.Text = "";
         }
 
@@ -1101,6 +1144,10 @@ namespace Starbound_ColorOptions_EasyPicker
             this.Text = AppPreferences.ApplicationName;
 
             _lastDirectory = String.Empty;
+
+            UpdateOriginalSprite();
+            SetFlagToUpdateColoredImage();
+            UpdateTransitionListView();
         }
 
         private void radioButton_Male_CheckedChanged(object sender, EventArgs e)
@@ -1543,5 +1590,13 @@ namespace Starbound_ColorOptions_EasyPicker
 
             this.label_Status.Text = "";
         }
+
+        private void checkBox_ShowMagnifier_CheckedChanged(object sender, EventArgs e)
+        {
+            this.spriteFrameDisplay_Colored.ShowMagnifier = checkBox_ShowMagnifier.Checked;
+            this.spriteFrameDisplay_Original.ShowMagnifier = checkBox_ShowMagnifier.Checked;
+        }
+
+        #endregion
     }
 }

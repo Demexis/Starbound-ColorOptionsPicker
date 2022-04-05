@@ -143,6 +143,8 @@ namespace Starbound_ColorOptions_EasyPicker
             }
 
             this.pictureBox_Edited.Image = bitmap;
+
+            MainForm.Instance.SetFlagToUpdateColoredImage();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -168,6 +170,8 @@ namespace Starbound_ColorOptions_EasyPicker
                     }
                 }
             }
+
+            MainForm.Instance.SetFlagToUpdateColoredImage();
 
             base.OnClosing(e);
         }

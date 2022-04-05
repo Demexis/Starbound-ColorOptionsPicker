@@ -404,6 +404,9 @@
     <Content Include="Icons\icon.ico" />
     <Content Include="Icons\iconLarge.ico" />
     <Content Include="Icons\planet_icon.ico" />
+    <None Include="Resources\picker_icon.png" />
+    <None Include="Resources\generate_icon.png" />
+    <None Include="Resources\github_icon.png" />
     <None Include="Resources\human_chestm.png" />
     <None Include="Resources\human_chestf.png" />
     <None Include="Resources\human_pants.png" />

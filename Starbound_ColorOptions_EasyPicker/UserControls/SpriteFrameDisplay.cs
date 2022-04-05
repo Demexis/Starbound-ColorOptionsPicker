@@ -31,6 +31,7 @@ namespace Starbound_ColorOptions_EasyPicker.UserControls
         private bool _mouseInside;
         private Point _mousePos;
 
+        public bool ShowMagnifier = true;
 
         public Color BackgroundColor
         {
@@ -152,7 +153,7 @@ namespace Starbound_ColorOptions_EasyPicker.UserControls
 
         private void Repaint()
         {
-            if (!_mouseInside) return;
+            if (!_mouseInside || !ShowMagnifier) return;
 
             Graphics g = pictureBox1.CreateGraphics();
 
@@ -199,6 +200,9 @@ namespace Starbound_ColorOptions_EasyPicker.UserControls
                 // Draw the cloned portion of the Bitmap object.
                 g.DrawImage(cloneBitmap, viewRect.X + 2, viewRect.Y + 2);
             }
+
+            g.DrawRectangle(new Pen(Color.White), new Rectangle(viewRect.X + viewRect.Width / 2 - 1, viewRect.Y + viewRect.Height / 2 - 1, 2, 2));
+            g.FillRectangle(new SolidBrush(Color.Red), new Rectangle(viewRect.X + viewRect.Width / 2, viewRect.Y + viewRect.Height / 2, 1, 1));
 
             g.Dispose();
         }

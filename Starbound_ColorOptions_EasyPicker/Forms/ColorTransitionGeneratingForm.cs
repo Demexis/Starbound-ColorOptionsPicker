@@ -12,7 +12,7 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
 {
     public partial class ColorTransitionGeneratingForm : Form
     {
-        public enum GenerateMethod { HSV, Saturation, RGB_Coefficients }
+        public enum GenerateMethod { HSV, Contrast, Random }
 
 
         public ColorTransitionGeneratingForm()
@@ -20,7 +20,7 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
             InitializeComponent();
 
             // Get the bitmap.
-            Bitmap bm = new Bitmap(Properties.Resources.options_icon);
+            Bitmap bm = new Bitmap(Properties.Resources.generate_icon);
 
             // Convert to an icon and use for the form's icon.
             this.Icon = Icon.FromHandle(bm.GetHicon());
@@ -43,11 +43,11 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
                         GenerateByHSV();
                         break;
 
-                    case GenerateMethod.Saturation:
+                    case GenerateMethod.Contrast:
 
                         break;
 
-                    case GenerateMethod.RGB_Coefficients:
+                    case GenerateMethod.Random:
 
                         break;
                     default:

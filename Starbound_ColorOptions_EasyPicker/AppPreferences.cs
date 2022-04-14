@@ -21,5 +21,39 @@ namespace Starbound_ColorOptions_EasyPicker
         public static bool IgnoreMasks = false;
 
         //public static bool GenerateComments = false;
+
+        // Importing Color Options Preferences
+
+        public static Dictionary<Rules.ColorOptions, bool> ImportColorOptions = new Dictionary<Rules.ColorOptions, bool>()
+        {
+            [Rules.ColorOptions.Default] = true,
+            [Rules.ColorOptions.Black] = true,
+            [Rules.ColorOptions.Grey] = true,
+            [Rules.ColorOptions.White] = true,
+            [Rules.ColorOptions.Red] = true,
+            [Rules.ColorOptions.Orange] = true,
+            [Rules.ColorOptions.Yellow] = true,
+            [Rules.ColorOptions.Green] = true,
+            [Rules.ColorOptions.Blue] = true,
+            [Rules.ColorOptions.Purple] = true,
+            [Rules.ColorOptions.Pink] = true,
+            [Rules.ColorOptions.Brown] = true
+        };
+
+        public static Dictionary<Rules.ColorOptions, bool> ExportColorOptions = new Dictionary<Rules.ColorOptions, bool>()
+        {
+            [Rules.ColorOptions.Default] = true,
+            [Rules.ColorOptions.Black] = true,
+            [Rules.ColorOptions.Grey] = true,
+            [Rules.ColorOptions.White] = true,
+            [Rules.ColorOptions.Red] = true,
+            [Rules.ColorOptions.Orange] = true,
+            [Rules.ColorOptions.Yellow] = true,
+            [Rules.ColorOptions.Green] = true,
+            [Rules.ColorOptions.Blue] = true,
+            [Rules.ColorOptions.Purple] = true,
+            [Rules.ColorOptions.Pink] = true,
+            [Rules.ColorOptions.Brown] = true
+        };
     }
 }

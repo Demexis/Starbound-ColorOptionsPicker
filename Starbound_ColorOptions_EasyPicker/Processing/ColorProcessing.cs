@@ -9,6 +9,8 @@ namespace Starbound_ColorOptions_EasyPicker
 {
     public static class ColorProcessing
     {
+        private static Random _r = new Random();
+
         public static String HexConverter(System.Drawing.Color c)
         {
             return "#" + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
@@ -200,6 +202,11 @@ namespace Starbound_ColorOptions_EasyPicker
         public static int GetColorValue(Color color)
         {
             return ColorProcessing.RGBtoHSV(color.R, color.G, color.B).Item3;
+        }
+
+        public static Color GetRandomColor()
+        {
+            return Color.FromArgb(_r.Next(0, 255), _r.Next(0, 255), _r.Next(0, 255));
         }
     }
 }

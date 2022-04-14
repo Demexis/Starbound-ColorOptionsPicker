@@ -245,6 +245,13 @@
     <Compile Include="Forms\ColorTransitionGeneratingForm.Designer.cs">
       <DependentUpon>ColorTransitionGeneratingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ColorTransitionImportExportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ColorTransitionImportExportForm.Designer.cs">
+      <DependentUpon>ColorTransitionImportExportForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Handlers\FileHandler.cs" />
     <Compile Include="Processing\BitmapProcessing.cs" />
     <Compile Include="Processing\ColorProcessing.cs" />
     <Compile Include="Forms\ColorTransitionEditingForm.cs">
@@ -316,6 +323,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ColorTransitionGeneratingForm.resx">
       <DependentUpon>ColorTransitionGeneratingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ColorTransitionImportExportForm.resx">
+      <DependentUpon>ColorTransitionImportExportForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

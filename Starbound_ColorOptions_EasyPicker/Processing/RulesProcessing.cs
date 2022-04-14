@@ -29,7 +29,7 @@ namespace Starbound_ColorOptions_EasyPicker
             return rectangle;
         }
 
-        public static string GetJSONStringFromColorTransitionHandler(ColorTransitionHandler colorTransitionHandler)
+        public static string GetJSONStringFromColorTransitions(Dictionary<string, List<ColorTransitionItem>> colorTransitions)
         {
             JObject json = new JObject();
 
@@ -37,10 +37,9 @@ namespace Starbound_ColorOptions_EasyPicker
             foreach (string colorOption in Enum.GetNames(typeof(Rules.ColorOptions)))
             {
                 JObject keyValuePairs = new JObject();
-                foreach (ColorTransitionItem item in colorTransitionHandler[colorOption])
+                foreach (ColorTransitionItem item in colorTransitions[colorOption])
                 {
                     KeyValuePair<string, string> keyValuePair = new KeyValuePair<string, string>(item.GetExportHexColorFrom, item.GetExportHexColorTo);
-                    JToken jToken = JToken.FromObject(keyValuePair);
 
                     keyValuePairs.Add(new JProperty(keyValuePair.Key, keyValuePair.Value));
                 }
@@ -50,7 +49,73 @@ namespace Starbound_ColorOptions_EasyPicker
 
             json.Add("colorOptions", jArray);
 
-            return json.ToString();
+            string jsonString = json.ToString();
+
+            // Processing Comments
+            int bracketsCount = 0;
+            for (int i = 0; i < jsonString.Length; i++)
+            {
+                if(jsonString[i].Equals('{'))
+                {
+                    bracketsCount++;
+                    string comment = string.Empty;
+                    switch (bracketsCount)
+                    {
+                        case 2:
+                            comment = "// Default\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 3:
+                            comment = "// Black\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 4:
+                            comment = "// Grey\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 5:
+                            comment = "// White\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 6:
+                            comment = "// Red\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 7:
+                            comment = "// Orange\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 8:
+                            comment = "// Yellow\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 9:
+                            comment = "// Green\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 10:
+                            comment = "// Blue\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 11:
+                            comment = "// Purple\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 12:
+                            comment = "// Pink\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                        case 13:
+                            comment = "// Brown\n" + "    ";
+                            jsonString = jsonString.Insert(i, comment);
+                            break;
+                    }
+
+                    i += comment.Length;
+                }
+            }
+
+            return jsonString;
 
             //Console.WriteLine(json.ToString());
         }

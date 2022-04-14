@@ -12,7 +12,7 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
 {
     public partial class ColorTransitionGeneratingForm : Form
     {
-        public enum GenerateMethod { HSV, Contrast, Random }
+        public enum GenerateMethod { HSV, Random }
 
 
         public ColorTransitionGeneratingForm()
@@ -43,12 +43,9 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
                         GenerateByHSV();
                         break;
 
-                    case GenerateMethod.Contrast:
-
-                        break;
-
                     case GenerateMethod.Random:
-
+                        GenerateByRandom();
+                        if(checkBox_Replace.Checked) return;
                         break;
                     default:
                         break;
@@ -56,6 +53,96 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
             }
 
             this.Close();
+        }
+
+        private void GenerateByRandom()
+        {
+            if (checkBox_Replace.Checked)
+                MainForm.Instance.ColorTransitionHandler.Clear();
+
+            foreach (string colorOptionName in Enum.GetNames(typeof(Rules.ColorOptions)))
+            {
+                if (Enum.TryParse(colorOptionName, out Rules.ColorOptions colorOption))
+                {
+                    switch (colorOption)
+                    {
+                        case Rules.ColorOptions.Default:
+                            GenerateByRandomHelper(colorOptionName, ColorProcessing.GetColorHue(ColorProcessing.GetRandomColor()), 1, 1);
+                            break;
+                        case Rules.ColorOptions.Black:
+                            GenerateByRandomHelper(colorOptionName, 0, 0, 0.5f);
+                            break;
+                        case Rules.ColorOptions.Grey:
+                            GenerateByRandomHelper(colorOptionName, 0, 0, 1);
+                            break;
+                        case Rules.ColorOptions.White:
+                            GenerateByRandomHelper(colorOptionName, 0, 0, 1.35f);
+                            break;
+                        case Rules.ColorOptions.Red:
+                            GenerateByRandomHelper(colorOptionName, 0, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Orange:
+                            GenerateByRandomHelper(colorOptionName, 30, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Yellow:
+                            GenerateByRandomHelper(colorOptionName, 60, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Green:
+                            GenerateByRandomHelper(colorOptionName, 120, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Blue:
+                            GenerateByRandomHelper(colorOptionName, 210, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Purple:
+                            GenerateByRandomHelper(colorOptionName, 270, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Pink:
+                            GenerateByRandomHelper(colorOptionName, 300, 1, 1);
+                            break;
+                        case Rules.ColorOptions.Brown:
+                            GenerateByRandomHelper(colorOptionName, 30, 1, 1);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            MainForm.Instance.UpdateTransitionListView();
+        }
+
+        private void GenerateByRandomHelper(string colorOptionName, int hue, float cSaturation, float cValue)
+        {
+            List<Color> transitionColors = new List<Color>();
+            foreach (ColorTransitionItem item in MainForm.Instance.ColorTransitionHandler[colorOptionName])
+            {
+                transitionColors.Add(item.ColorTo);
+            }
+
+            foreach (Color color in MainForm.Instance.GetOriginalColors())
+            {
+                if (!checkBox_Replace.Checked && MainForm.Instance.ColorTransitionHandler[colorOptionName].Any((x) => x.ColorFrom == color)) continue;
+
+                Color colorTo;
+
+                do
+                {
+                    colorTo = ColorProcessing.GetRandomColor();
+
+                    int S = Mathf.Clamp((int)(ColorProcessing.GetColorSaturation(colorTo) * cSaturation), 0, 100);
+                    int V = Mathf.Clamp((int)(ColorProcessing.GetColorValue(colorTo) * cValue), 0, 100);
+
+                    Tuple<int, int, int> rgb = ColorProcessing.HSVToRGB(hue, S, V);
+
+                    colorTo = Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+                }
+                while (checkBox_SkipDependent.Checked && transitionColors.Contains(colorTo));
+
+                transitionColors.Add(colorTo);
+
+                ColorTransitionItem colorTransitionItem = new ColorTransitionItem(color, colorTo);
+                MainForm.Instance.ColorTransitionHandler[colorOptionName].Add(colorTransitionItem);
+            }
         }
 
         private void GenerateByHSV()
@@ -70,6 +157,7 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
                     switch (colorOption)
                     {
                         case Rules.ColorOptions.Default:
+                            GenerateByHSVHelper(colorOptionName, 0, 0, 0, true);
                             break;
                         case Rules.ColorOptions.Black:
                             GenerateByHSVHelper(colorOptionName, 0, 0, 0.5f);
@@ -113,7 +201,7 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
             MainForm.Instance.UpdateTransitionListView();
         }
 
-        private void GenerateByHSVHelper(string colorOptionName, int hue, float cSaturation, float cValue)
+        private void GenerateByHSVHelper(string colorOptionName, int hue, float cSaturation, float cValue, bool ignoreHSV = false)
         {
             List<Color> transitionColors = new List<Color>();
             foreach(ColorTransitionItem item in MainForm.Instance.ColorTransitionHandler[colorOptionName])
@@ -127,12 +215,15 @@ namespace Starbound_ColorOptions_EasyPicker.Forms
                 
                 Color colorTo = color;
 
-                int S = Mathf.Clamp((int)(ColorProcessing.GetColorSaturation(colorTo) * cSaturation), 0, 100);
-                int V = Mathf.Clamp((int)(ColorProcessing.GetColorValue(colorTo) * cValue), 0, 100);
+                if(!ignoreHSV)
+                {
+                    int S = Mathf.Clamp((int)(ColorProcessing.GetColorSaturation(colorTo) * cSaturation), 0, 100);
+                    int V = Mathf.Clamp((int)(ColorProcessing.GetColorValue(colorTo) * cValue), 0, 100);
 
-                Tuple<int, int, int> rgb = ColorProcessing.HSVToRGB(hue, S, V);
+                    Tuple<int, int, int> rgb = ColorProcessing.HSVToRGB(hue, S, V);
 
-                colorTo = Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+                    colorTo = Color.FromArgb(rgb.Item1, rgb.Item2, rgb.Item3);
+                }
 
                 if (checkBox_SkipDependent.Checked && transitionColors.Contains(color)) continue;
 

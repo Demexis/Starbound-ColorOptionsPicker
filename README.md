@@ -17,6 +17,9 @@
 ## Setup
 To run this application, download [the latest release](../../releases).
 
+## Wiki
+
+The [Wiki](../../wiki) describes in detail the features and nuances of the program tools.
 
 ## Usage
 First you need to open the folder that contains the files related to the costume. These files have the extensions .head, .chest, .legs, and .back.
